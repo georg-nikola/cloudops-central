@@ -10,14 +10,14 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, enum
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, Enum
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import NamedModel
 
 
-class PolicyStatus(str, enum.Enum):
+class PolicyStatus(str, Enum):
     """Enumeration of policy statuses."""
     
     DRAFT = "draft"
@@ -26,7 +26,7 @@ class PolicyStatus(str, enum.Enum):
     DEPRECATED = "deprecated"
 
 
-class PolicySeverity(str, enum.Enum):
+class PolicySeverity(str, Enum):
     """Enumeration of policy severity levels."""
     
     LOW = "low"
@@ -35,7 +35,7 @@ class PolicySeverity(str, enum.Enum):
     CRITICAL = "critical"
 
 
-class PolicyType(str, enum.Enum):
+class PolicyType(str, Enum):
     """Enumeration of policy types."""
     
     SECURITY = "security"
@@ -46,7 +46,7 @@ class PolicyType(str, enum.Enum):
     BACKUP = "backup"
 
 
-class ViolationStatus(str, enum.Enum):
+class ViolationStatus(str, Enum):
     """Enumeration of violation statuses."""
     
     OPEN = "open"
@@ -56,7 +56,7 @@ class ViolationStatus(str, enum.Enum):
     FALSE_POSITIVE = "false_positive"
 
 
-class RuleEngine(str, enum.Enum):
+class RuleEngine(str, Enum):
     """Enumeration of rule engines."""
     
     OPA = "opa"  # Open Policy Agent
@@ -75,20 +75,20 @@ class Policy(NamedModel):
     __tablename__ = "policies"
     
     policy_type: Mapped[PolicyType] = mapped_column(
-        enum.Enum(PolicyType),
+        Enum(PolicyType),
         nullable=False,
         doc="Type/category of the policy"
     )
     
     policy_status: Mapped[PolicyStatus] = mapped_column(
-        enum.Enum(PolicyStatus),
+        Enum(PolicyStatus),
         nullable=False,
         default=PolicyStatus.DRAFT,
         doc="Current status of the policy"
     )
     
     severity: Mapped[PolicySeverity] = mapped_column(
-        enum.Enum(PolicySeverity),
+        Enum(PolicySeverity),
         nullable=False,
         default=PolicySeverity.MEDIUM,
         doc="Severity level for violations"
@@ -108,7 +108,7 @@ class Policy(NamedModel):
     )
     
     rule_engine: Mapped[RuleEngine] = mapped_column(
-        enum.Enum(RuleEngine),
+        Enum(RuleEngine),
         nullable=False,
         default=RuleEngine.OPA,
         doc="Rule engine used to evaluate this policy"
@@ -234,7 +234,7 @@ class PolicyRule(NamedModel):
     )
     
     severity: Mapped[PolicySeverity] = mapped_column(
-        enum.Enum(PolicySeverity),
+        Enum(PolicySeverity),
         nullable=False,
         default=PolicySeverity.MEDIUM,
         doc="Severity level for this rule"
@@ -314,14 +314,14 @@ class PolicyViolation(NamedModel):
     )
     
     violation_status: Mapped[ViolationStatus] = mapped_column(
-        enum.Enum(ViolationStatus),
+        Enum(ViolationStatus),
         nullable=False,
         default=ViolationStatus.OPEN,
         doc="Current status of the violation"
     )
     
     severity: Mapped[PolicySeverity] = mapped_column(
-        enum.Enum(PolicySeverity),
+        Enum(PolicySeverity),
         nullable=False,
         doc="Severity of this violation"
     )

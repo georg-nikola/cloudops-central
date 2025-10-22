@@ -11,14 +11,14 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Numeric, String, Text, enum
+from sqlalchemy import Boolean, DateTime, ForeignKey, Numeric, String, Text, Enum
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import BaseModel, NamedModel
 
 
-class CostPeriod(str, enum.Enum):
+class CostPeriod(str, Enum):
     """Enumeration of cost tracking periods."""
     
     HOURLY = "hourly"
@@ -28,7 +28,7 @@ class CostPeriod(str, enum.Enum):
     YEARLY = "yearly"
 
 
-class AlertStatus(str, enum.Enum):
+class AlertStatus(str, Enum):
     """Enumeration of alert statuses."""
     
     ACTIVE = "active"
@@ -37,7 +37,7 @@ class AlertStatus(str, enum.Enum):
     SUPPRESSED = "suppressed"
 
 
-class AlertType(str, enum.Enum):
+class AlertType(str, Enum):
     """Enumeration of alert types."""
     
     BUDGET_THRESHOLD = "budget_threshold"
@@ -47,7 +47,7 @@ class AlertType(str, enum.Enum):
     OPTIMIZATION_OPPORTUNITY = "optimization_opportunity"
 
 
-class BudgetStatus(str, enum.Enum):
+class BudgetStatus(str, Enum):
     """Enumeration of budget statuses."""
     
     ACTIVE = "active"
@@ -203,14 +203,14 @@ class CostBudget(NamedModel):
     )
     
     period: Mapped[CostPeriod] = mapped_column(
-        enum.Enum(CostPeriod),
+        Enum(CostPeriod),
         nullable=False,
         default=CostPeriod.MONTHLY,
         doc="Budget period"
     )
     
     budget_status: Mapped[BudgetStatus] = mapped_column(
-        enum.Enum(BudgetStatus),
+        Enum(BudgetStatus),
         nullable=False,
         default=BudgetStatus.ACTIVE,
         doc="Current budget status"
@@ -325,13 +325,13 @@ class CostAlert(NamedModel):
     )
     
     alert_type: Mapped[AlertType] = mapped_column(
-        enum.Enum(AlertType),
+        Enum(AlertType),
         nullable=False,
         doc="Type of alert"
     )
     
     alert_status: Mapped[AlertStatus] = mapped_column(
-        enum.Enum(AlertStatus),
+        Enum(AlertStatus),
         nullable=False,
         default=AlertStatus.ACTIVE,
         doc="Current alert status"

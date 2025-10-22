@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, UniqueConstraint, enum
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -90,7 +90,7 @@ class User(NamedModel):
     )
     
     user_status: Mapped[UserStatus] = mapped_column(
-        enum.Enum(UserStatus),
+        Enum(UserStatus),
         nullable=False,
         default=UserStatus.PENDING_VERIFICATION,
         doc="Current user account status"
@@ -243,7 +243,7 @@ class Role(NamedModel):
     __tablename__ = "roles"
     
     role_type: Mapped[RoleType] = mapped_column(
-        enum.Enum(RoleType),
+        Enum(RoleType),
         nullable=False,
         default=RoleType.CUSTOM,
         doc="Type of role"
@@ -354,7 +354,7 @@ class UserRole(BaseModel):
     
     # Scope for resource-specific permissions
     scope: Mapped[PermissionScope] = mapped_column(
-        enum.Enum(PermissionScope),
+        Enum(PermissionScope),
         nullable=False,
         default=PermissionScope.GLOBAL,
         doc="Scope of the role assignment"

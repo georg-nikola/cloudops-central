@@ -20,6 +20,7 @@ from sqlalchemy import (
     Integer,
     Numeric,
     String,
+    Table,
     Text,
     UniqueConstraint,
     func,
@@ -27,7 +28,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.base import NamedModel
+from app.models.base import Base, NamedModel
 
 
 class CloudProviderType(str, enum.Enum):
@@ -537,8 +538,9 @@ class InfrastructureTemplate(NamedModel):
 
 
 # Association table for many-to-many relationship between templates and resource types
-template_resource_types = Column(
+template_resource_types = Table(
     "template_resource_types",
+    Base.metadata,
     Column("template_id", UUID(as_uuid=True), ForeignKey("infrastructure_templates.id"), primary_key=True),
     Column("resource_type_id", UUID(as_uuid=True), ForeignKey("resource_types.id"), primary_key=True),
 )

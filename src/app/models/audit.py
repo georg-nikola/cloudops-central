@@ -10,14 +10,14 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, enum
+from sqlalchemy import DateTime, ForeignKey, String, Text, Enum
 from sqlalchemy.dialects.postgresql import INET, JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import BaseModel
 
 
-class AuditEventType(str, enum.Enum):
+class AuditEventType(str, Enum):
     """Enumeration of audit event types."""
     
     CREATE = "create"
@@ -35,7 +35,7 @@ class AuditEventType(str, enum.Enum):
     SECURITY_EVENT = "security_event"
 
 
-class AuditSeverity(str, enum.Enum):
+class AuditSeverity(str, Enum):
     """Enumeration of audit event severity levels."""
     
     INFO = "info"
@@ -44,7 +44,7 @@ class AuditSeverity(str, enum.Enum):
     CRITICAL = "critical"
 
 
-class AuditStatus(str, enum.Enum):
+class AuditStatus(str, Enum):
     """Enumeration of audit event statuses."""
     
     SUCCESS = "success"
@@ -63,20 +63,20 @@ class AuditLog(BaseModel):
     __tablename__ = "audit_logs"
     
     event_type: Mapped[AuditEventType] = mapped_column(
-        enum.Enum(AuditEventType),
+        Enum(AuditEventType),
         nullable=False,
         doc="Type of event being audited"
     )
     
     severity: Mapped[AuditSeverity] = mapped_column(
-        enum.Enum(AuditSeverity),
+        Enum(AuditSeverity),
         nullable=False,
         default=AuditSeverity.INFO,
         doc="Severity level of the event"
     )
     
     status: Mapped[AuditStatus] = mapped_column(
-        enum.Enum(AuditStatus),
+        Enum(AuditStatus),
         nullable=False,
         default=AuditStatus.SUCCESS,
         doc="Status of the audited action"
@@ -252,20 +252,20 @@ class AuditEvent(BaseModel):
     )
     
     event_type: Mapped[AuditEventType] = mapped_column(
-        enum.Enum(AuditEventType),
+        Enum(AuditEventType),
         nullable=False,
         doc="Type of event"
     )
     
     severity: Mapped[AuditSeverity] = mapped_column(
-        enum.Enum(AuditSeverity),
+        Enum(AuditSeverity),
         nullable=False,
         default=AuditSeverity.INFO,
         doc="Severity level of the event"
     )
     
     status: Mapped[AuditStatus] = mapped_column(
-        enum.Enum(AuditStatus),
+        Enum(AuditStatus),
         nullable=False,
         default=AuditStatus.SUCCESS,
         doc="Overall status of the event"

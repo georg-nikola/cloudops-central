@@ -188,9 +188,6 @@ async def init_db() -> None:
     """Initialize the database, creating all tables."""
     try:
         async with engine.begin() as conn:
-            # Import all models to ensure they're registered
-            from app.models import *  # noqa: F401, F403
-            
             # Create all tables
             await conn.run_sync(Base.metadata.create_all)
             logger.info("Database tables created successfully")
