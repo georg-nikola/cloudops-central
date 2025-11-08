@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     
     # Application Information
     APP_NAME: str = Field(default="CloudOps Central", env="APP_NAME")
-    APP_VERSION: str = Field(default="1.0.0", env="APP_VERSION")
+    APP_VERSION: str = Field(default="0.1.0", env="APP_VERSION")
     APP_DESCRIPTION: str = Field(
         default="Enterprise Infrastructure Management Platform", 
         env="APP_DESCRIPTION"
