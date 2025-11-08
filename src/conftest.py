@@ -27,7 +27,7 @@ from sqlalchemy.pool import StaticPool
 from main import app
 from app.core.config import Settings, get_settings
 from app.core.database import get_db, Base
-from app.models.users import User, Role, Permission
+from app.models.users import User, Role, UserStatus
 from app.models.infrastructure import CloudProvider, InfrastructureResource
 from app.models.costs import CostRecord
 from app.models.policies import Policy
@@ -136,12 +136,14 @@ async def async_client() -> AsyncGenerator[AsyncClient, None]:
 def test_user_data() -> dict:
     """Test user data."""
     return {
-        "id": "550e8400-e29b-41d4-a716-446655440000",
         "email": "test@example.com",
         "username": "testuser",
-        "full_name": "Test User",
-        "is_active": True,
+        "first_name": "Test",
+        "last_name": "User",
+        "hashed_password": "hashed_password_placeholder",
+        "user_status": UserStatus.ACTIVE,
         "is_superuser": False,
+        "is_verified": True,
     }
 
 
@@ -149,12 +151,14 @@ def test_user_data() -> dict:
 def test_admin_data() -> dict:
     """Test admin user data."""
     return {
-        "id": "550e8400-e29b-41d4-a716-446655440001",
         "email": "admin@example.com",
         "username": "admin",
-        "full_name": "Admin User",
-        "is_active": True,
+        "first_name": "Admin",
+        "last_name": "User",
+        "hashed_password": "hashed_admin_password",
+        "user_status": UserStatus.ACTIVE,
         "is_superuser": True,
+        "is_verified": True,
     }
 
 
@@ -219,18 +223,39 @@ async def test_cloud_provider(db_session: AsyncSession) -> CloudProvider:
 
 
 @pytest_asyncio.fixture
+async def test_resource_type(db_session: AsyncSession) -> "ResourceType":
+    """Create a test resource type."""
+    from app.models.infrastructure import ResourceType
+
+    resource_type = ResourceType(
+        name="EC2 Instance",
+        resource_category="compute",
+        cloud_provider_type="aws",
+        icon="server",
+    )
+    db_session.add(resource_type)
+    await db_session.commit()
+    await db_session.refresh(resource_type)
+    return resource_type
+
+
+@pytest_asyncio.fixture
 async def test_infrastructure_resource(
     db_session: AsyncSession,
-    test_cloud_provider: CloudProvider
+    test_cloud_provider: CloudProvider,
+    test_resource_type: "ResourceType"
 ) -> InfrastructureResource:
     """Create a test infrastructure resource."""
+    from app.models.infrastructure import ResourceStatus
+
     resource = InfrastructureResource(
-        resource_id="i-1234567890abcdef0",
-        resource_type="ec2_instance",
-        cloud_provider_id=test_cloud_provider.id,
-        region="us-east-1",
         name="test-instance",
-        status="running",
+        description="Test EC2 instance",
+        cloud_provider_id=test_cloud_provider.id,
+        resource_type_id=test_resource_type.id,
+        external_id="i-1234567890abcdef0",
+        region="us-east-1",
+        resource_status=ResourceStatus.RUNNING,
         configuration={"instance_type": "t3.medium"},
     )
     db_session.add(resource)
@@ -242,13 +267,16 @@ async def test_infrastructure_resource(
 @pytest_asyncio.fixture
 async def test_policy(db_session: AsyncSession) -> Policy:
     """Create a test policy."""
+    from app.models.policies import PolicyType, PolicySeverity, RuleEngine
+
     policy = Policy(
         name="Test Security Policy",
         description="A test policy for security compliance",
-        policy_type="security",
-        severity="high",
-        is_enabled=True,
-        rules={"check_encryption": True},
+        policy_type=PolicyType.SECURITY,
+        severity=PolicySeverity.HIGH,
+        policy_code="package cloudops\n\ndefault allow = false",
+        rule_engine=RuleEngine.OPA,
+        target_resources=["ec2_instance", "rds_instance"],
     )
     db_session.add(policy)
     await db_session.commit()
@@ -259,16 +287,26 @@ async def test_policy(db_session: AsyncSession) -> Policy:
 @pytest_asyncio.fixture
 async def test_cost_record(
     db_session: AsyncSession,
-    test_infrastructure_resource: InfrastructureResource
+    test_infrastructure_resource: InfrastructureResource,
+    test_cloud_provider: CloudProvider
 ) -> CostRecord:
     """Create a test cost record."""
+    from datetime import datetime, timedelta
+    from decimal import Decimal
+
+    now = datetime.utcnow()
     cost = CostRecord(
         resource_id=test_infrastructure_resource.id,
-        date="2025-11-08",
-        amount=125.50,
-        currency="USD",
+        cloud_provider_id=test_cloud_provider.id,
         service_name="EC2",
-        cost_type="compute",
+        resource_type="Instance",
+        resource_identifier="i-1234567890abcdef0",
+        region="us-east-1",
+        cost_amount=Decimal("125.50"),
+        currency="USD",
+        billing_period_start=now - timedelta(days=1),
+        billing_period_end=now,
+        cost_details={},
     )
     db_session.add(cost)
     await db_session.commit()

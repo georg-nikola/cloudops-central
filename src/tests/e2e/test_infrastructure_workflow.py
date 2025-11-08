@@ -173,7 +173,9 @@ class TestPolicyComplianceWorkflow:
             "description": "Test policy for E2E testing",
             "policy_type": "security",
             "severity": "high",
-            "rules": {"check_encryption": True}
+            "policy_code": "package e2e\n\ndefault allow = true",
+            "rule_engine": "opa",
+            "target_resources": ["ec2_instance"]
         }
         create_response = await async_client.post(
             "/api/v1/policies",

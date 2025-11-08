@@ -40,10 +40,9 @@ class TestPolicyEndpoints:
             "description": "A test policy for integration testing",
             "policy_type": "security",
             "severity": "high",
-            "rules": {
-                "check_encryption": True,
-                "check_public_access": True
-            }
+            "policy_code": "package test\n\ndefault allow = false",
+            "rule_engine": "opa",
+            "target_resources": ["ec2_instance", "rds_instance"]
         }
         response = await async_client.post("/api/v1/policies", json=policy_data)
 
@@ -117,7 +116,7 @@ class TestPolicyValidation:
         """Test creating policy with missing required fields."""
         invalid_data = {
             "name": "Incomplete Policy"
-            # Missing required fields
+            # Missing required fields: policy_type, policy_code, etc.
         }
         response = await async_client.post("/api/v1/policies", json=invalid_data)
 
