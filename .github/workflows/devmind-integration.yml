@@ -1,0 +1,339 @@
+name: DevMind Pipeline Integration
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      devmind_api:
+        description: 'DevMind API URL'
+        required: false
+        default: 'https://devmind.example.com'
+
+env:
+  DEVMIND_API: ${{ github.event.inputs.devmind_api || 'https://devmind.example.com' }}
+  DEVMIND_TIMEOUT: 30
+
+jobs:
+  health-check:
+    name: Verify DevMind Service Health
+    runs-on: ubuntu-latest
+    outputs:
+      service_healthy: ${{ steps.health.outputs.status == 'healthy' }}
+    steps:
+      - name: Check DevMind API health
+        id: health
+        continue-on-error: true
+        run: |
+          echo "Checking DevMind service at $DEVMIND_API..."
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X GET "$DEVMIND_API/health" --max-time $DEVMIND_TIMEOUT)
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+
+          echo "HTTP Status: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" = "200" ]; then
+            STATUS=$(echo "$BODY" | jq -r '.status // "unknown"')
+            echo "status=$STATUS" >> $GITHUB_OUTPUT
+            echo "✅ DevMind service is $STATUS"
+          else
+            echo "status=unhealthy" >> $GITHUB_OUTPUT
+            echo "⚠️ DevMind service unavailable (HTTP $HTTP_CODE)"
+          fi
+
+  analyze-changes:
+    name: Analyze Code Changes
+    runs-on: ubuntu-latest
+    needs: health-check
+    if: github.event_name == 'pull_request'
+    outputs:
+      changed_files: ${{ steps.files.outputs.changed_files }}
+      file_count: ${{ steps.files.outputs.file_count }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: files
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }})
+          else
+            CHANGED=$(git diff --name-only HEAD~1 HEAD)
+          fi
+
+          # Convert to JSON array format
+          JSON_ARRAY=$(echo "$CHANGED" | jq -R -s 'split("\n") | map(select(length > 0))')
+
+          echo "changed_files=$JSON_ARRAY" >> $GITHUB_OUTPUT
+
+          FILE_COUNT=$(echo "$CHANGED" | grep -c . || echo 0)
+          echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
+
+          echo "Changed files ($FILE_COUNT):"
+          echo "$CHANGED" | sed 's/^/  - /'
+
+  intelligent-test-selection:
+    name: Intelligent Test Selection
+    runs-on: ubuntu-latest
+    needs: [health-check, analyze-changes]
+    if: needs.health-check.outputs.service_healthy == 'true'
+    outputs:
+      selected_tests: ${{ steps.select.outputs.selected_tests }}
+      skipped_tests: ${{ steps.select.outputs.skipped_tests }}
+      time_saved: ${{ steps.select.outputs.time_saved }}
+      confidence: ${{ steps.select.outputs.confidence }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Find all test files
+        id: find_tests
+        run: |
+          # Find all test files
+          TESTS=$(find . -name "test_*.py" -o -name "*_test.py" | \
+            grep -v __pycache__ | \
+            jq -R -s 'split("\n") | map(select(length > 0))')
+
+          echo "all_tests=$TESTS" >> $GITHUB_OUTPUT
+          echo "Found tests:"
+          echo $TESTS | jq .
+
+      - name: Request test selection from DevMind
+        id: select
+        continue-on-error: true
+        run: |
+          PAYLOAD=$(cat <<EOF
+          {
+            "changed_files": ${{ needs.analyze-changes.outputs.changed_files || '[]' }},
+            "all_tests": ${{ steps.find_tests.outputs.all_tests }}
+          }
+          EOF
+          )
+
+          echo "Request payload:"
+          echo $PAYLOAD | jq .
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$DEVMIND_API/api/v1/test-intelligence/select" \
+            -H "Content-Type: application/json" \
+            --max-time $DEVMIND_TIMEOUT \
+            -d "$PAYLOAD")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Received test selection from DevMind"
+
+            SELECTED=$(echo "$BODY" | jq -c '.selected_tests')
+            SKIPPED=$(echo "$BODY" | jq -c '.skipped_tests')
+            SAVED=$(echo "$BODY" | jq -r '.estimated_time_saved // "0"')
+            CONFIDENCE=$(echo "$BODY" | jq -r '.confidence // "0.0"')
+
+            echo "selected_tests=$SELECTED" >> $GITHUB_OUTPUT
+            echo "skipped_tests=$SKIPPED" >> $GITHUB_OUTPUT
+            echo "time_saved=$SAVED" >> $GITHUB_OUTPUT
+            echo "confidence=$CONFIDENCE" >> $GITHUB_OUTPUT
+
+            echo "Selected tests (confidence: $CONFIDENCE):"
+            echo $SELECTED | jq '.[] | "  - " + .' -r
+            echo "Time saved: ~${SAVED}s"
+          else
+            echo "⚠️ Failed to get test selection (HTTP $HTTP_CODE)"
+            echo "Falling back to all tests"
+            echo "selected_tests=${{ steps.find_tests.outputs.all_tests }}" >> $GITHUB_OUTPUT
+            echo "skipped_tests=[]" >> $GITHUB_OUTPUT
+            echo "time_saved=0" >> $GITHUB_OUTPUT
+            echo "confidence=0.0" >> $GITHUB_OUTPUT
+          fi
+
+  failure-risk-assessment:
+    name: Assess Pipeline Failure Risk
+    runs-on: ubuntu-latest
+    needs: health-check
+    if: needs.health-check.outputs.service_healthy == 'true'
+    outputs:
+      risk_level: ${{ steps.assess.outputs.risk_level }}
+      failure_probability: ${{ steps.assess.outputs.failure_probability }}
+      run_full_tests: ${{ steps.assess.outputs.run_full_tests }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Collect metrics
+        id: metrics
+        run: |
+          # Simulate metric collection (replace with real metrics from your infrastructure)
+          # In a real setup, you'd query Prometheus, CloudWatch, DataDog, etc.
+
+          METRICS=$(cat <<'EOF'
+          {
+            "pipeline_duration_mean": 450,
+            "pipeline_duration_std": 120,
+            "failure_rate_7d": 0.05,
+            "code_churn": 2300,
+            "test_coverage": 0.78,
+            "deployment_frequency": 12,
+            "error_rate": 0.02,
+            "response_time_p95": 850,
+            "resource_utilization": 0.65
+          }
+          EOF
+          )
+
+          echo "Collected metrics:"
+          echo $METRICS | jq .
+
+          # URL encode for safe transmission
+          echo "metrics=$METRICS" >> $GITHUB_OUTPUT
+
+      - name: Request failure risk assessment from DevMind
+        id: assess
+        continue-on-error: true
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$DEVMIND_API/api/v1/failure-predictor/predict" \
+            -H "Content-Type: application/json" \
+            --max-time $DEVMIND_TIMEOUT \
+            -d '${{ steps.metrics.outputs.metrics }}')
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Received failure risk assessment from DevMind"
+
+            RISK=$(echo "$BODY" | jq -r '.risk_level // "UNKNOWN"')
+            PROBABILITY=$(echo "$BODY" | jq -r '.failure_probability // "0.0"')
+            RECOMMENDATIONS=$(echo "$BODY" | jq -c '.recommendations // []')
+
+            echo "risk_level=$RISK" >> $GITHUB_OUTPUT
+            echo "failure_probability=$PROBABILITY" >> $GITHUB_OUTPUT
+
+            # Run full tests if HIGH or MEDIUM risk
+            if [ "$RISK" = "HIGH" ] || [ "$RISK" = "MEDIUM" ]; then
+              echo "run_full_tests=true" >> $GITHUB_OUTPUT
+              echo "⚠️ Risk level: $RISK (probability: $PROBABILITY)"
+            else
+              echo "run_full_tests=false" >> $GITHUB_OUTPUT
+              echo "✅ Risk level: $RISK (probability: $PROBABILITY)"
+            fi
+
+            echo "Recommendations:"
+            echo $RECOMMENDATIONS | jq '.[] | "  - " + .' -r
+          else
+            echo "⚠️ Failed to get risk assessment (HTTP $HTTP_CODE)"
+            echo "Defaulting to safe approach: run full tests"
+            echo "risk_level=UNKNOWN" >> $GITHUB_OUTPUT
+            echo "failure_probability=0.5" >> $GITHUB_OUTPUT
+            echo "run_full_tests=true" >> $GITHUB_OUTPUT
+          fi
+
+  run-selected-tests:
+    name: Run Selected Tests
+    runs-on: ubuntu-latest
+    needs: intelligent-test-selection
+    if: needs.intelligent-test-selection.outputs.selected_tests != '[]'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Cache Python dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/pypoetry
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r src/requirements.txt
+
+      - name: Run selected tests
+        run: |
+          TESTS="${{ needs.intelligent-test-selection.outputs.selected_tests }}"
+          pytest $TESTS -v --tb=short --color=yes
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: .pytest_cache/
+          retention-days: 7
+
+  comment-pr:
+    name: Comment PR with DevMind Analysis
+    runs-on: ubuntu-latest
+    needs: [intelligent-test-selection, failure-risk-assessment, analyze-changes]
+    if: github.event_name == 'pull_request' && always()
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            const selected_tests = ${{ needs.intelligent-test-selection.outputs.selected_tests || '[]' }};
+            const skipped_tests = ${{ needs.intelligent-test-selection.outputs.skipped_tests || '[]' }};
+            const time_saved = '${{ needs.intelligent-test-selection.outputs.time_saved || '0' }}';
+            const confidence = '${{ needs.intelligent-test-selection.outputs.confidence || '0.0' }}';
+            const risk_level = '${{ needs.failure-risk-assessment.outputs.risk_level || 'UNKNOWN' }}';
+            const failure_prob = '${{ needs.failure-risk-assessment.outputs.failure_probability || '0.0' }}';
+
+            const testCount = Array.isArray(selected_tests) ? selected_tests.length : 0;
+            const skippedCount = Array.isArray(skipped_tests) ? skipped_tests.length : 0;
+
+            const riskEmoji = risk_level === 'HIGH' ? '🔴' :
+                             risk_level === 'MEDIUM' ? '🟡' : '🟢';
+
+            const body = `## 🤖 DevMind Pipeline Analysis
+
+            ### 📊 Test Selection
+            - **Selected**: ${testCount} tests (confidence: ${confidence})
+            - **Skipped**: ${skippedCount} tests
+            - **Estimated Time Saved**: ~${time_saved}s
+
+            ### ⚠️ Failure Risk Assessment
+            - **Risk Level**: ${riskEmoji} ${risk_level}
+            - **Failure Probability**: ${failure_prob}
+
+            ### 📝 Change Summary
+            - **Files Changed**: ${{ needs.analyze-changes.outputs.file_count }}
+
+            ---
+            *Powered by [DevMind Pipeline](https://github.com/georg-nikola/devmind-pipeline)*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+  workflow-summary:
+    name: Workflow Summary
+    runs-on: ubuntu-latest
+    needs: [health-check, intelligent-test-selection, failure-risk-assessment]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## 🤖 DevMind Pipeline Integration Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Service Status" >> $GITHUB_STEP_SUMMARY
+          echo "- **API Health**: ${{ needs.health-check.outputs.service_healthy == 'true' && '✅ Healthy' || '⚠️ Unavailable' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Selection" >> $GITHUB_STEP_SUMMARY
+          echo "- **Selected Tests**: ${{ needs.intelligent-test-selection.outputs.selected_tests || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time Saved**: ~${{ needs.intelligent-test-selection.outputs.time_saved || '0' }}s" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Risk Assessment" >> $GITHUB_STEP_SUMMARY
+          echo "- **Risk Level**: ${{ needs.failure-risk-assessment.outputs.risk_level || 'Unknown' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Failure Probability**: ${{ needs.failure-risk-assessment.outputs.failure_probability || '0.0' }}" >> $GITHUB_STEP_SUMMARY
