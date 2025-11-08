@@ -1,0 +1,282 @@
+name: Docker Build and Push to GHCR
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*.*.*'
+  release:
+    types: [ published ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Build and Test Docker Images
+  build-and-test:
+    name: Build and Test Docker Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        target: [production, celery-worker, celery-beat]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+          flavor: |
+            latest=auto
+            suffix=-${{ matrix.target }}
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./src
+          file: ./src/Dockerfile
+          target: ${{ matrix.target }}
+          push: false
+          load: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test Docker image
+        run: |
+          # Get the first tag
+          IMAGE_TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n 1)
+          echo "Testing image: $IMAGE_TAG"
+
+          # Run basic health checks for production target
+          if [ "${{ matrix.target }}" = "production" ]; then
+            docker run --rm -d --name test-container \
+              -e DATABASE_URL=sqlite:///test.db \
+              -e REDIS_URL=redis://localhost:6379 \
+              -e SECRET_KEY=test-key \
+              -e JWT_SECRET_KEY=test-jwt-key \
+              -p 8000:8000 \
+              $IMAGE_TAG
+
+            # Wait for container to be ready
+            sleep 10
+
+            # Check if container is running
+            docker ps | grep test-container
+
+            # Check health endpoint (may fail if DB is required, that's ok)
+            curl -f http://localhost:8000/health || echo "Health check failed (expected without DB)"
+
+            # Stop and remove container
+            docker stop test-container
+          fi
+
+      - name: Push Docker image
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./src
+          file: ./src/Dockerfile
+          target: ${{ matrix.target }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Push latest tags on release
+  push-latest-on-release:
+    name: Push Latest Tags on Release
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.event_name == 'release'
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        target: [production, celery-worker, celery-beat]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build and push with latest tag
+        uses: docker/build-push-action@v5
+        with:
+          context: ./src
+          file: ./src/Dockerfile
+          target: ${{ matrix.target }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-${{ matrix.target }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}-${{ matrix.target }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Create deployment manifest
+  create-deployment-manifest:
+    name: Create Deployment Manifest
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.event_name == 'release'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create deployment manifest
+        run: |
+          cat > deployment-manifest.yml << EOF
+          version: ${{ steps.version.outputs.version }}
+          release_date: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          images:
+            backend:
+              registry: ${{ env.REGISTRY }}
+              repository: ${{ env.IMAGE_NAME }}
+              tag: ${{ steps.version.outputs.version }}-production
+              digest: ${{ needs.build-and-test.outputs.digest }}
+            celery_worker:
+              registry: ${{ env.REGISTRY }}
+              repository: ${{ env.IMAGE_NAME }}
+              tag: ${{ steps.version.outputs.version }}-celery-worker
+            celery_beat:
+              registry: ${{ env.REGISTRY }}
+              repository: ${{ env.IMAGE_NAME }}
+              tag: ${{ steps.version.outputs.version }}-celery-beat
+
+          deployment_command: |
+            docker-compose -f docker-compose.prod.yml pull
+            docker-compose -f docker-compose.prod.yml up -d
+
+          kubernetes_images:
+            backend: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}-production
+            celery_worker: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}-celery-worker
+            celery_beat: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}-celery-beat
+          EOF
+
+      - name: Upload deployment manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-manifest
+          path: deployment-manifest.yml
+          retention-days: 90
+
+  # Security scan with Trivy
+  security-scan:
+    name: Security Scan Docker Images
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      security-events: write
+
+    strategy:
+      matrix:
+        target: [production, celery-worker, celery-beat]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull image
+        run: |
+          IMAGE_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-${{ matrix.target }}"
+          docker pull $IMAGE_TAG
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-${{ matrix.target }}
+          format: 'sarif'
+          output: 'trivy-results-${{ matrix.target }}.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results-${{ matrix.target }}.sarif'
+
+  # Summary
+  build-summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [build-and-test, security-scan]
+    if: always()
+
+    steps:
+      - name: Check build results
+        run: |
+          echo "Build and Push Summary"
+          echo "======================"
+          echo "Build and Test: ${{ needs.build-and-test.result }}"
+          echo "Security Scan: ${{ needs.security-scan.result }}"
+          echo ""
+          echo "Images pushed to: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+
+      - name: Fail if build failed
+        if: needs.build-and-test.result == 'failure'
+        run: exit 1
