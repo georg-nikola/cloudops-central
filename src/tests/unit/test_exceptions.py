@@ -6,12 +6,16 @@ from datetime import datetime
 
 import pytest
 
-from app.core.exceptions import (AuthenticationException,
-                                 AuthorizationException, CloudOpsException,
-                                 DatabaseException, ExternalServiceException,
-                                 ResourceConflictException,
-                                 ResourceNotFoundException,
-                                 ValidationException)
+from app.core.exceptions import (
+    AuthenticationException,
+    AuthorizationException,
+    CloudOpsException,
+    DatabaseException,
+    ExternalServiceException,
+    ResourceConflictException,
+    ResourceNotFoundException,
+    ValidationException,
+)
 
 
 class TestCloudOpsException:

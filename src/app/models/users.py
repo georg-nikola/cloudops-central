@@ -10,8 +10,15 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy import (Boolean, DateTime, Enum, ForeignKey, String, Text,
-                        UniqueConstraint)
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    Enum,
+    ForeignKey,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

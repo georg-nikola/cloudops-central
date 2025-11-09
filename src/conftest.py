@@ -19,8 +19,7 @@ import pytest_asyncio
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 from sqlalchemy import create_engine
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -30,6 +29,7 @@ from app.models.costs import CostRecord
 from app.models.infrastructure import CloudProvider, InfrastructureResource
 from app.models.policies import Policy
 from app.models.users import Role, User, UserStatus
+
 # Import the app and dependencies
 from main import app
 

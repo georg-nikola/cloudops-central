@@ -8,13 +8,17 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
+
 # Import the Base and all models to ensure they're registered
 from app.models import Base
 from app.models.audit import AuditLog, ChangeRequest
-from app.models.costs import (CostAllocation, CostAnomaly, CostBudget,
-                              CostRecord)
-from app.models.infrastructure import (CloudProvider, InfrastructureResource,
-                                       ResourceDrift, ResourceRelationship)
+from app.models.costs import CostAllocation, CostAnomaly, CostBudget, CostRecord
+from app.models.infrastructure import (
+    CloudProvider,
+    InfrastructureResource,
+    ResourceDrift,
+    ResourceRelationship,
+)
 from app.models.policies import Policy, PolicyExecution, PolicyViolation
 from app.models.users import Permission, Role, RolePermission, User, UserRole
 

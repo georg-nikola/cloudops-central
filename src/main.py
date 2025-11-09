@@ -21,9 +21,12 @@ from app.core.config import get_settings
 from app.core.database import engine
 from app.core.exceptions import CloudOpsException
 from app.core.logging import setup_logging
-from app.core.middleware import (AuthenticationMiddleware, LoggingMiddleware,
-                                 RateLimitMiddleware,
-                                 SecurityHeadersMiddleware)
+from app.core.middleware import (
+    AuthenticationMiddleware,
+    LoggingMiddleware,
+    RateLimitMiddleware,
+    SecurityHeadersMiddleware,
+)
 from app.core.monitoring import setup_monitoring
 from app.models import Base
 

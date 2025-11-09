@@ -5,8 +5,11 @@ Unit tests for database module.
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import (ConnectionPoolMonitor, DatabaseManager,
-                               database_health_check)
+from app.core.database import (
+    ConnectionPoolMonitor,
+    DatabaseManager,
+    database_health_check,
+)
 
 
 class TestDatabaseManager:

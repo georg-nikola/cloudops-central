@@ -8,9 +8,13 @@ Models are organized by domain and functionality.
 from app.models.audit import AuditEvent, AuditLog
 from app.models.base import Base, TimestampMixin
 from app.models.costs import CostAlert, CostBudget, CostRecord
-from app.models.infrastructure import (CloudProvider, Infrastructure,
-                                       InfrastructureResource,
-                                       InfrastructureTemplate, ResourceType)
+from app.models.infrastructure import (
+    CloudProvider,
+    Infrastructure,
+    InfrastructureResource,
+    InfrastructureTemplate,
+    ResourceType,
+)
 from app.models.policies import Policy, PolicyRule, PolicyViolation
 from app.models.users import Role, User, UserRole
 
