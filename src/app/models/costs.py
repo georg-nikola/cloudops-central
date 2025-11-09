@@ -11,7 +11,8 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Numeric, String, Text, Enum
+from sqlalchemy import (Boolean, DateTime, Enum, ForeignKey, Numeric, String,
+                        Text)
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

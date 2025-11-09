@@ -158,6 +158,7 @@ class LoggingMiddleware:
     async def __call__(self, request, call_next):
         """Process request and log details."""
         import uuid
+
         from starlette.middleware.base import BaseHTTPMiddleware
 
         # Generate correlation ID

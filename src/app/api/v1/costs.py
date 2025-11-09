@@ -3,11 +3,12 @@ Cost tracking and optimization API endpoints.
 Provides cost analytics, forecasting, and optimization recommendations.
 """
 
-from typing import List, Optional
 from datetime import date, datetime
+from typing import List, Optional
+
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.services.cost_service import CostService

@@ -8,19 +8,15 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
-
 # Import the Base and all models to ensure they're registered
 from app.models import Base
-from app.models.infrastructure import (
-    CloudProvider,
-    InfrastructureResource,
-    ResourceDrift,
-    ResourceRelationship,
-)
-from app.models.users import User, Role, Permission, UserRole, RolePermission
-from app.models.costs import CostRecord, CostAnomaly, CostBudget, CostAllocation
-from app.models.policies import Policy, PolicyViolation, PolicyExecution
 from app.models.audit import AuditLog, ChangeRequest
+from app.models.costs import (CostAllocation, CostAnomaly, CostBudget,
+                              CostRecord)
+from app.models.infrastructure import (CloudProvider, InfrastructureResource,
+                                       ResourceDrift, ResourceRelationship)
+from app.models.policies import Policy, PolicyExecution, PolicyViolation
+from app.models.users import Permission, Role, RolePermission, User, UserRole
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

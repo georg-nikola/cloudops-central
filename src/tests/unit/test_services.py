@@ -2,11 +2,12 @@
 Unit tests for service layer.
 """
 
-import pytest
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
-from app.services.infrastructure_service import InfrastructureService
+import pytest
+
 from app.services.cost_service import CostService
+from app.services.infrastructure_service import InfrastructureService
 from app.services.policy_service import PolicyService
 from app.services.user_service import UserService
 

@@ -2,19 +2,16 @@
 Unit tests for custom exceptions.
 """
 
-import pytest
 from datetime import datetime
 
-from app.core.exceptions import (
-    CloudOpsException,
-    DatabaseException,
-    ValidationException,
-    AuthenticationException,
-    AuthorizationException,
-    ResourceNotFoundException,
-    ResourceConflictException,
-    ExternalServiceException,
-)
+import pytest
+
+from app.core.exceptions import (AuthenticationException,
+                                 AuthorizationException, CloudOpsException,
+                                 DatabaseException, ExternalServiceException,
+                                 ResourceConflictException,
+                                 ResourceNotFoundException,
+                                 ValidationException)
 
 
 class TestCloudOpsException:

@@ -9,10 +9,10 @@ import pytest
 from sqlalchemy import select
 
 from app.models.base import BaseModel, NamedModel
-from app.models.infrastructure import CloudProvider, InfrastructureResource
-from app.models.users import User, Role
 from app.models.costs import CostRecord
+from app.models.infrastructure import CloudProvider, InfrastructureResource
 from app.models.policies import Policy
+from app.models.users import Role, User
 
 
 class TestBaseModelMixins:
@@ -214,7 +214,7 @@ class TestPolicyModel:
     @pytest.mark.unit
     async def test_create_policy(self, db_session):
         """Test creating a policy."""
-        from app.models.policies import PolicyType, PolicySeverity, RuleEngine
+        from app.models.policies import PolicySeverity, PolicyType, RuleEngine
 
         policy = Policy(
             name="Security Policy",

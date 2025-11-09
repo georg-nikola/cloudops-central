@@ -4,7 +4,8 @@ Aggregates all API v1 endpoints.
 """
 
 from fastapi import APIRouter
-from app.api.v1 import infrastructure, costs, policies, users
+
+from app.api.v1 import costs, infrastructure, policies, users
 
 api_router = APIRouter()
 

@@ -3,9 +3,10 @@ Monitoring and metrics setup for CloudOps Central.
 Provides Prometheus metrics integration.
 """
 
-from prometheus_client import Counter, Histogram, Gauge, Info
-from typing import Dict, Any
 import logging
+from typing import Any, Dict
+
+from prometheus_client import Counter, Gauge, Histogram, Info
 
 logger = logging.getLogger(__name__)
 
