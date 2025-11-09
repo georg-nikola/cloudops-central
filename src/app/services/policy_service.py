@@ -65,9 +65,7 @@ class PolicyService:
             "updated_at": "2025-10-21T18:00:00Z",
         }
 
-    async def update_policy(
-        self, policy_id: int, policy_data: Any
-    ) -> Optional[Dict[str, Any]]:
+    async def update_policy(self, policy_id: int, policy_data: Any) -> Optional[Dict[str, Any]]:
         """Update an existing policy."""
         return {
             "id": policy_id,

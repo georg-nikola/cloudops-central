@@ -36,12 +36,8 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str = Field(default="your-super-secret-key", env="SECRET_KEY")
     JWT_SECRET_KEY: str = Field(default="your-jwt-secret-key", env="JWT_SECRET_KEY")
-    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
-        default=60, env="JWT_ACCESS_TOKEN_EXPIRE_MINUTES"
-    )
-    JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = Field(
-        default=30, env="JWT_REFRESH_TOKEN_EXPIRE_DAYS"
-    )
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60, env="JWT_ACCESS_TOKEN_EXPIRE_MINUTES")
+    JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=30, env="JWT_REFRESH_TOKEN_EXPIRE_DAYS")
     JWT_ALGORITHM: str = Field(default="HS256", env="JWT_ALGORITHM")
     BCRYPT_ROUNDS: int = Field(default=12, env="BCRYPT_ROUNDS")
     SESSION_MAX_AGE: int = Field(default=3600, env="SESSION_MAX_AGE")
@@ -76,42 +72,30 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: Optional[str] = Field(default=None, env="REDIS_PASSWORD")
 
     # Celery Configuration
-    CELERY_BROKER_URL: str = Field(
-        default="redis://localhost:6379/1", env="CELERY_BROKER_URL"
-    )
+    CELERY_BROKER_URL: str = Field(default="redis://localhost:6379/1", env="CELERY_BROKER_URL")
     CELERY_RESULT_BACKEND: str = Field(
         default="redis://localhost:6379/2", env="CELERY_RESULT_BACKEND"
     )
     CELERY_TASK_SERIALIZER: str = Field(default="json", env="CELERY_TASK_SERIALIZER")
-    CELERY_ACCEPT_CONTENT: List[str] = Field(
-        default=["json"], env="CELERY_ACCEPT_CONTENT"
-    )
-    CELERY_RESULT_SERIALIZER: str = Field(
-        default="json", env="CELERY_RESULT_SERIALIZER"
-    )
+    CELERY_ACCEPT_CONTENT: List[str] = Field(default=["json"], env="CELERY_ACCEPT_CONTENT")
+    CELERY_RESULT_SERIALIZER: str = Field(default="json", env="CELERY_RESULT_SERIALIZER")
     CELERY_TIMEZONE: str = Field(default="UTC", env="CELERY_TIMEZONE")
 
     # AWS Configuration
     AWS_REGION: str = Field(default="us-east-1", env="AWS_REGION")
     AWS_ACCESS_KEY_ID: Optional[str] = Field(default=None, env="AWS_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY: Optional[str] = Field(
-        default=None, env="AWS_SECRET_ACCESS_KEY"
-    )
+    AWS_SECRET_ACCESS_KEY: Optional[str] = Field(default=None, env="AWS_SECRET_ACCESS_KEY")
     AWS_S3_BUCKET: Optional[str] = Field(default=None, env="AWS_S3_BUCKET")
 
     # Azure Configuration
     AZURE_CLIENT_ID: Optional[str] = Field(default=None, env="AZURE_CLIENT_ID")
     AZURE_CLIENT_SECRET: Optional[str] = Field(default=None, env="AZURE_CLIENT_SECRET")
     AZURE_TENANT_ID: Optional[str] = Field(default=None, env="AZURE_TENANT_ID")
-    AZURE_SUBSCRIPTION_ID: Optional[str] = Field(
-        default=None, env="AZURE_SUBSCRIPTION_ID"
-    )
+    AZURE_SUBSCRIPTION_ID: Optional[str] = Field(default=None, env="AZURE_SUBSCRIPTION_ID")
 
     # GCP Configuration
     GCP_PROJECT_ID: Optional[str] = Field(default=None, env="GCP_PROJECT_ID")
-    GCP_CREDENTIALS_PATH: Optional[str] = Field(
-        default=None, env="GCP_CREDENTIALS_PATH"
-    )
+    GCP_CREDENTIALS_PATH: Optional[str] = Field(default=None, env="GCP_CREDENTIALS_PATH")
 
     # External Services
     PROMETHEUS_URL: str = Field(default="http://localhost:9090", env="PROMETHEUS_URL")
@@ -167,9 +151,7 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     @validator("CELERY_ACCEPT_CONTENT", pre=True)
-    def assemble_celery_accept_content(
-        cls, v: Union[str, List[str]]
-    ) -> Union[List[str], str]:
+    def assemble_celery_accept_content(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
         """Parse Celery accept content from environment variable."""
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]

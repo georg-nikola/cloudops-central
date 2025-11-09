@@ -104,9 +104,7 @@ async def sync_infrastructure(
     }
 
 
-@router.post(
-    "/resources/{resource_id}/detect-drift", response_model=DriftDetectionResponse
-)
+@router.post("/resources/{resource_id}/detect-drift", response_model=DriftDetectionResponse)
 async def detect_drift(resource_id: str, db: AsyncSession = Depends(get_db)):
     """
     Detect configuration drift for a specific resource.
@@ -118,9 +116,7 @@ async def detect_drift(resource_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/statistics")
-async def get_statistics(
-    cloud_provider: Optional[str] = None, db: AsyncSession = Depends(get_db)
-):
+async def get_statistics(cloud_provider: Optional[str] = None, db: AsyncSession = Depends(get_db)):
     """
     Get infrastructure statistics and metrics.
     Provides aggregated data about resources, costs, and compliance.

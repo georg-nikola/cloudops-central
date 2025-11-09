@@ -120,9 +120,7 @@ class CloudProvider(NamedModel):
         cascade="all, delete-orphan",
     )
 
-    __table_args__ = (
-        UniqueConstraint("name", "provider_type", name="unique_provider_name_type"),
-    )
+    __table_args__ = (UniqueConstraint("name", "provider_type", name="unique_provider_name_type"),)
 
 
 class ResourceType(NamedModel):
@@ -378,9 +376,7 @@ class InfrastructureResource(NamedModel):
         "CloudProvider", back_populates="resources"
     )
 
-    resource_type: Mapped["ResourceType"] = relationship(
-        "ResourceType", back_populates="resources"
-    )
+    resource_type: Mapped["ResourceType"] = relationship("ResourceType", back_populates="resources")
 
 
 class InfrastructureTemplate(NamedModel):

@@ -202,9 +202,7 @@ class PolicyRule(NamedModel):
         doc="ID of the parent policy",
     )
 
-    rule_code: Mapped[str] = mapped_column(
-        Text, nullable=False, doc="Rule implementation code"
-    )
+    rule_code: Mapped[str] = mapped_column(Text, nullable=False, doc="Rule implementation code")
 
     rule_type: Mapped[str] = mapped_column(
         String(100), nullable=False, doc="Type of rule (validation, constraint, etc.)"

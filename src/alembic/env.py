@@ -94,9 +94,7 @@ async def run_async_migrations() -> None:
     if database_url := os.getenv("DATABASE_URL"):
         # Convert to async URL
         if database_url.startswith("postgresql://"):
-            database_url = database_url.replace(
-                "postgresql://", "postgresql+asyncpg://", 1
-            )
+            database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
         configuration["sqlalchemy.url"] = database_url
     else:
         # Convert the URL from alembic.ini to async

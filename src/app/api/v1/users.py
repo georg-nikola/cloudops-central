@@ -65,9 +65,7 @@ async def list_users(
     - **role**: Filter by user role
     """
     service = UserService(db)
-    users = await service.list_users(
-        is_active=is_active, role=role, skip=skip, limit=limit
-    )
+    users = await service.list_users(is_active=is_active, role=role, skip=skip, limit=limit)
     return users
 
 
@@ -107,9 +105,7 @@ async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/{user_id}", response_model=UserResponse)
-async def update_user(
-    user_id: int, user: UserUpdate, db: AsyncSession = Depends(get_db)
-):
+async def update_user(user_id: int, user: UserUpdate, db: AsyncSession = Depends(get_db)):
     """Update an existing user."""
     service = UserService(db)
     updated_user = await service.update_user(user_id, user)

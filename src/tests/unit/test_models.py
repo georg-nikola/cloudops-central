@@ -118,9 +118,7 @@ class TestCloudProviderModel:
         db_session.add(provider)
         await db_session.commit()
 
-        result = await db_session.execute(
-            select(CloudProvider).where(CloudProvider.name == "AWS")
-        )
+        result = await db_session.execute(select(CloudProvider).where(CloudProvider.name == "AWS"))
         saved_provider = result.scalar_one()
 
         assert saved_provider.name == "AWS"
@@ -196,9 +194,7 @@ class TestUserModel:
         db_session.add(user)
         await db_session.commit()
 
-        result = await db_session.execute(
-            select(User).where(User.email == "test@example.com")
-        )
+        result = await db_session.execute(select(User).where(User.email == "test@example.com"))
         saved_user = result.scalar_one()
 
         assert saved_user.username == "testuser"
@@ -228,9 +224,7 @@ class TestPolicyModel:
         db_session.add(policy)
         await db_session.commit()
 
-        result = await db_session.execute(
-            select(Policy).where(Policy.name == "Security Policy")
-        )
+        result = await db_session.execute(select(Policy).where(Policy.name == "Security Policy"))
         saved_policy = result.scalar_one()
 
         assert saved_policy.policy_type == PolicyType.SECURITY
@@ -268,9 +262,7 @@ class TestCostRecordModel:
         await db_session.commit()
 
         result = await db_session.execute(
-            select(CostRecord).where(
-                CostRecord.resource_id == test_infrastructure_resource.id
-            )
+            select(CostRecord).where(CostRecord.resource_id == test_infrastructure_resource.id)
         )
         saved_cost = result.scalar_one()
 

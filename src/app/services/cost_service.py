@@ -144,8 +144,6 @@ class CostService:
 
         # Filter by min savings if specified
         if min_savings is not None:
-            recommendations = [
-                r for r in recommendations if r["estimated_savings"] >= min_savings
-            ]
+            recommendations = [r for r in recommendations if r["estimated_savings"] >= min_savings]
 
         return recommendations

@@ -206,9 +206,7 @@ class AuditEvent(BaseModel):
 
     __tablename__ = "audit_events"
 
-    event_name: Mapped[str] = mapped_column(
-        String(200), nullable=False, doc="Name of the event"
-    )
+    event_name: Mapped[str] = mapped_column(String(200), nullable=False, doc="Name of the event")
 
     event_type: Mapped[AuditEventType] = mapped_column(
         Enum(AuditEventType), nullable=False, doc="Type of event"
@@ -235,9 +233,7 @@ class AuditEvent(BaseModel):
         doc="ID of the user who initiated the event",
     )
 
-    description: Mapped[str] = mapped_column(
-        Text, nullable=False, doc="Description of the event"
-    )
+    description: Mapped[str] = mapped_column(Text, nullable=False, doc="Description of the event")
 
     event_summary: Mapped[Dict[str, Any]] = mapped_column(
         JSON, nullable=False, default=dict, doc="Summary of the event and its impact"

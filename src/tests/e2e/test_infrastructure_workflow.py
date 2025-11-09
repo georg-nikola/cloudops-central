@@ -12,9 +12,7 @@ class TestInfrastructureDiscoveryWorkflow:
     @pytest.mark.asyncio
     @pytest.mark.e2e
     @pytest.mark.slow
-    async def test_complete_infrastructure_sync_workflow(
-        self, async_client, db_session
-    ):
+    async def test_complete_infrastructure_sync_workflow(self, async_client, db_session):
         """
         Test complete workflow:
         1. Trigger infrastructure sync
@@ -39,9 +37,7 @@ class TestInfrastructureDiscoveryWorkflow:
 
         # Step 3: Get specific resource
         resource_id = resources[0]["resource_id"]
-        detail_response = await async_client.get(
-            f"/api/v1/infrastructure/resources/{resource_id}"
-        )
+        detail_response = await async_client.get(f"/api/v1/infrastructure/resources/{resource_id}")
         assert detail_response.status_code == status.HTTP_200_OK
         resource_detail = detail_response.json()
         assert resource_detail["resource_id"] == resource_id
@@ -130,17 +126,13 @@ class TestCostOptimizationWorkflow:
         assert isinstance(anomalies, list)
 
         # Step 4: Get forecast
-        forecast_response = await async_client.get(
-            "/api/v1/costs/forecast", params={"days": 30}
-        )
+        forecast_response = await async_client.get("/api/v1/costs/forecast", params={"days": 30})
         assert forecast_response.status_code == status.HTTP_200_OK
         forecast = forecast_response.json()
         assert "forecasted_cost" in forecast
 
         # Step 5: Get recommendations
-        recommendations_response = await async_client.get(
-            "/api/v1/costs/recommendations"
-        )
+        recommendations_response = await async_client.get("/api/v1/costs/recommendations")
         assert recommendations_response.status_code == status.HTTP_200_OK
         recommendations = recommendations_response.json()
         assert isinstance(recommendations, list)

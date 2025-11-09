@@ -106,9 +106,7 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
 @app.exception_handler(CloudOpsException)
-async def cloudops_exception_handler(
-    request: Request, exc: CloudOpsException
-) -> JSONResponse:
+async def cloudops_exception_handler(request: Request, exc: CloudOpsException) -> JSONResponse:
     """Handle CloudOps custom exceptions."""
     return JSONResponse(
         status_code=exc.status_code,

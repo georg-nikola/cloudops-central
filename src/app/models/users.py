@@ -10,15 +10,7 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy import (
-    Boolean,
-    DateTime,
-    Enum,
-    ForeignKey,
-    String,
-    Text,
-    UniqueConstraint,
-)
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -191,9 +183,7 @@ class User(NamedModel):
             return True
         return False
 
-    def has_permission(
-        self, permission: str, resource_id: Optional[uuid.UUID] = None
-    ) -> bool:
+    def has_permission(self, permission: str, resource_id: Optional[uuid.UUID] = None) -> bool:
         """Check if user has a specific permission."""
         if self.is_superuser:
             return True
@@ -250,9 +240,7 @@ class Role(NamedModel):
         "UserRole", back_populates="role", cascade="all, delete-orphan"
     )
 
-    def has_permission(
-        self, permission: str, resource_id: Optional[uuid.UUID] = None
-    ) -> bool:
+    def has_permission(self, permission: str, resource_id: Optional[uuid.UUID] = None) -> bool:
         """Check if role has a specific permission."""
         # Simple permission check (can be extended for resource-specific permissions)
         return permission in self.permissions
@@ -329,15 +317,11 @@ class UserRole(BaseModel):
     )
 
     # Relationships
-    user: Mapped["User"] = relationship(
-        "User", back_populates="user_roles", foreign_keys=[user_id]
-    )
+    user: Mapped["User"] = relationship("User", back_populates="user_roles", foreign_keys=[user_id])
 
     role: Mapped["Role"] = relationship("Role", back_populates="user_roles")
 
-    granted_by_user: Mapped[Optional["User"]] = relationship(
-        "User", foreign_keys=[granted_by]
-    )
+    granted_by_user: Mapped[Optional["User"]] = relationship("User", foreign_keys=[granted_by])
 
     __table_args__ = (
         UniqueConstraint(

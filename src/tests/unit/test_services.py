@@ -32,9 +32,7 @@ class TestInfrastructureService:
     async def test_list_resources_with_filters(self, db_session):
         """Test listing resources with filters."""
         service = InfrastructureService(db_session)
-        resources = await service.list_resources(
-            cloud_provider="aws", resource_type="ec2_instance"
-        )
+        resources = await service.list_resources(cloud_provider="aws", resource_type="ec2_instance")
 
         assert isinstance(resources, list)
 
@@ -104,9 +102,7 @@ class TestCostService:
     async def test_get_cost_breakdown(self, db_session):
         """Test getting cost breakdown."""
         service = CostService(db_session)
-        breakdown = await service.get_cost_breakdown(
-            start_date="2025-11-01", end_date="2025-11-30"
-        )
+        breakdown = await service.get_cost_breakdown(start_date="2025-11-01", end_date="2025-11-30")
 
         assert isinstance(breakdown, dict)
         assert "total_cost" in breakdown

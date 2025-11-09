@@ -85,9 +85,7 @@ class UserService:
             "created_at": "2025-10-21T18:00:00Z",
         }
 
-    async def update_user(
-        self, user_id: int, user_data: Any
-    ) -> Optional[Dict[str, Any]]:
+    async def update_user(self, user_id: int, user_data: Any) -> Optional[Dict[str, Any]]:
         """Update an existing user."""
         update_dict = user_data.dict(exclude_unset=True)
         return {

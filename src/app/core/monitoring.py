@@ -58,24 +58,18 @@ async def setup_monitoring() -> None:
     logger.info("Setting up monitoring and metrics")
 
     # Set application info
-    app_info.info(
-        {"version": "1.0.0", "environment": "production", "service": "cloudops-central"}
-    )
+    app_info.info({"version": "1.0.0", "environment": "production", "service": "cloudops-central"})
 
     logger.info("Monitoring setup complete")
 
 
-def record_api_request(
-    method: str, endpoint: str, status: int, duration: float
-) -> None:
+def record_api_request(method: str, endpoint: str, status: int, duration: float) -> None:
     """Record API request metrics."""
     api_requests_total.labels(method=method, endpoint=endpoint, status=status).inc()
     api_request_duration.labels(method=method, endpoint=endpoint).observe(duration)
 
 
-def update_infrastructure_metrics(
-    cloud_provider: str, resource_type: str, count: int
-) -> None:
+def update_infrastructure_metrics(cloud_provider: str, resource_type: str, count: int) -> None:
     """Update infrastructure resource metrics."""
     infrastructure_resources_total.labels(
         cloud_provider=cloud_provider, resource_type=resource_type
@@ -84,9 +78,7 @@ def update_infrastructure_metrics(
 
 def update_cost_metrics(cloud_provider: str, service: str, amount: float) -> None:
     """Update cost metrics."""
-    cost_monthly_total.labels(cloud_provider=cloud_provider, service=service).set(
-        amount
-    )
+    cost_monthly_total.labels(cloud_provider=cloud_provider, service=service).set(amount)
 
 
 def record_policy_violation(policy_name: str, severity: str) -> None:
@@ -96,6 +88,4 @@ def record_policy_violation(policy_name: str, severity: str) -> None:
 
 def record_drift_detection(resource_type: str, cloud_provider: str) -> None:
     """Record drift detection."""
-    drift_detections_total.labels(
-        resource_type=resource_type, cloud_provider=cloud_provider
-    ).inc()
+    drift_detections_total.labels(resource_type=resource_type, cloud_provider=cloud_provider).inc()

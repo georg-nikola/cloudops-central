@@ -110,9 +110,7 @@ async def create_policy(policy: PolicyBase, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/{policy_id}", response_model=PolicyResponse)
-async def update_policy(
-    policy_id: int, policy: PolicyBase, db: AsyncSession = Depends(get_db)
-):
+async def update_policy(policy_id: int, policy: PolicyBase, db: AsyncSession = Depends(get_db)):
     """Update an existing policy."""
     service = PolicyService(db)
     updated_policy = await service.update_policy(policy_id, policy)
@@ -137,9 +135,7 @@ async def delete_policy(policy_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/evaluate")
-async def evaluate_policies(
-    request: PolicyEvaluationRequest, db: AsyncSession = Depends(get_db)
-):
+async def evaluate_policies(request: PolicyEvaluationRequest, db: AsyncSession = Depends(get_db)):
     """
     Evaluate policies against infrastructure resources.
     Checks all enabled policies and detects violations.

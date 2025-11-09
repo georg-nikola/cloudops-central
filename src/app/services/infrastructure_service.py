@@ -51,9 +51,7 @@ class InfrastructureService:
             "last_synced": "2025-10-21T10:00:00Z",
         }
 
-    async def sync_infrastructure(
-        self, cloud_provider: Optional[str] = None
-    ) -> Dict[str, int]:
+    async def sync_infrastructure(self, cloud_provider: Optional[str] = None) -> Dict[str, int]:
         """Sync infrastructure from cloud providers."""
         # Placeholder - would integrate with AWS/Azure/GCP APIs
         return {"discovered": 150, "updated": 145, "new": 5}
@@ -67,9 +65,7 @@ class InfrastructureService:
             "drift_details": None,
         }
 
-    async def get_statistics(
-        self, cloud_provider: Optional[str] = None
-    ) -> Dict[str, Any]:
+    async def get_statistics(self, cloud_provider: Optional[str] = None) -> Dict[str, Any]:
         """Get infrastructure statistics."""
         return {
             "total_resources": 150,

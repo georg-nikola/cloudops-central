@@ -73,9 +73,7 @@ def setup_logging() -> structlog.BoundLogger:
                 "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
                 "format": "%(asctime)s %(name)s %(levelname)s %(message)s %(pathname)s %(lineno)d",
             },
-            "console": {
-                "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            },
+            "console": {"format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"},
         },
         "handlers": {
             "console": {
@@ -238,7 +236,7 @@ class AuditLogger:
         resource_id: Optional[str] = None,
         user_id: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Log an audit event.
@@ -271,7 +269,7 @@ class AuditLogger:
         severity: str = "medium",
         user_id: Optional[str] = None,
         ip_address: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Log a security-related event.
@@ -306,11 +304,7 @@ class PerformanceLogger:
         self.logger = get_logger("performance")
 
     def log_database_query(
-        self,
-        query: str,
-        duration_ms: float,
-        rows_affected: Optional[int] = None,
-        **kwargs
+        self, query: str, duration_ms: float, rows_affected: Optional[int] = None, **kwargs
     ) -> None:
         """
         Log database query performance.
@@ -326,7 +320,7 @@ class PerformanceLogger:
             query=query,
             duration_ms=duration_ms,
             rows_affected=rows_affected,
-            **kwargs
+            **kwargs,
         )
 
     def log_api_call(
@@ -335,7 +329,7 @@ class PerformanceLogger:
         endpoint: str,
         duration_ms: float,
         status_code: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Log external API call performance.
@@ -353,7 +347,7 @@ class PerformanceLogger:
             endpoint=endpoint,
             duration_ms=duration_ms,
             status_code=status_code,
-            **kwargs
+            **kwargs,
         )
 
     def log_task_execution(
@@ -369,11 +363,7 @@ class PerformanceLogger:
             **kwargs: Additional fields to log
         """
         self.logger.info(
-            "Task execution",
-            task_name=task_name,
-            duration_ms=duration_ms,
-            status=status,
-            **kwargs
+            "Task execution", task_name=task_name, duration_ms=duration_ms, status=status, **kwargs
         )
 
 

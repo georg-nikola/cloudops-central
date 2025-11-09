@@ -57,9 +57,7 @@ class TestPolicyEndpoints:
         """Test PUT /api/v1/policies/{policy_id} endpoint."""
         policy_id = "policy-123"
         update_data = {"name": "Updated Policy Name", "severity": "critical"}
-        response = await async_client.put(
-            f"/api/v1/policies/{policy_id}", json=update_data
-        )
+        response = await async_client.put(f"/api/v1/policies/{policy_id}", json=update_data)
 
         assert response.status_code in [status.HTTP_200_OK, status.HTTP_404_NOT_FOUND]
 
@@ -81,9 +79,7 @@ class TestPolicyEndpoints:
     async def test_check_compliance(self, async_client, db_session):
         """Test POST /api/v1/policies/check-compliance endpoint."""
         check_data = {"resource_id": "i-1234567890abcdef0"}
-        response = await async_client.post(
-            "/api/v1/policies/check-compliance", json=check_data
-        )
+        response = await async_client.post("/api/v1/policies/check-compliance", json=check_data)
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()

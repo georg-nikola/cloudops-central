@@ -108,9 +108,7 @@ class TestSettings:
     @pytest.mark.unit
     def test_cors_origins_parsing(self):
         """Test CORS origins parsing from string."""
-        settings = Settings(
-            BACKEND_CORS_ORIGINS="http://localhost:3000,http://localhost:3001"
-        )
+        settings = Settings(BACKEND_CORS_ORIGINS="http://localhost:3000,http://localhost:3001")
 
         assert isinstance(settings.BACKEND_CORS_ORIGINS, list)
         assert len(settings.BACKEND_CORS_ORIGINS) == 2

@@ -37,9 +37,7 @@ class TestInfrastructureEndpoints:
     async def test_get_resource(self, async_client, db_session):
         """Test GET /api/v1/infrastructure/resources/{resource_id} endpoint."""
         resource_id = "i-1234567890abcdef0"
-        response = await async_client.get(
-            f"/api/v1/infrastructure/resources/{resource_id}"
-        )
+        response = await async_client.get(f"/api/v1/infrastructure/resources/{resource_id}")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -64,9 +62,7 @@ class TestInfrastructureEndpoints:
     async def test_detect_drift(self, async_client, db_session):
         """Test GET /api/v1/infrastructure/resources/{id}/drift endpoint."""
         resource_id = "i-1234567890abcdef0"
-        response = await async_client.get(
-            f"/api/v1/infrastructure/resources/{resource_id}/drift"
-        )
+        response = await async_client.get(f"/api/v1/infrastructure/resources/{resource_id}/drift")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()

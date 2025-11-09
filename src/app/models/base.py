@@ -150,9 +150,7 @@ class AuditMixin:
 class NameDescriptionMixin:
     """Mixin for adding name and description fields to models."""
 
-    name: Mapped[str] = mapped_column(
-        String(255), nullable=False, doc="Human-readable name"
-    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False, doc="Human-readable name")
 
     description: Mapped[Optional[str]] = mapped_column(
         Text, nullable=True, doc="Detailed description"
@@ -176,9 +174,7 @@ class StatusMixin:
         self.status_message = message
 
 
-class BaseModel(
-    Base, UUIDMixin, TimestampMixin, SoftDeleteMixin, MetadataMixin, AuditMixin
-):
+class BaseModel(Base, UUIDMixin, TimestampMixin, SoftDeleteMixin, MetadataMixin, AuditMixin):
     """
     Base model class that includes common functionality.
 
@@ -214,9 +210,7 @@ class BaseModel(
 
         return result
 
-    def update_from_dict(
-        self, data: Dict[str, Any], exclude_fields: Optional[set] = None
-    ) -> None:
+    def update_from_dict(self, data: Dict[str, Any], exclude_fields: Optional[set] = None) -> None:
         """
         Update model instance from dictionary.
 

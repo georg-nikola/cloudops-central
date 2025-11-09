@@ -98,9 +98,7 @@ class CostRecord(BaseModel):
         String(255), nullable=False, doc="External resource identifier"
     )
 
-    region: Mapped[Optional[str]] = mapped_column(
-        String(100), nullable=True, doc="Cloud region"
-    )
+    region: Mapped[Optional[str]] = mapped_column(String(100), nullable=True, doc="Cloud region")
 
     cost_amount: Mapped[Decimal] = mapped_column(
         Numeric(12, 4), nullable=False, doc="Cost amount in USD"
@@ -139,9 +137,7 @@ class CostRecord(BaseModel):
     )
 
     # Relationships
-    resource: Mapped[Optional["InfrastructureResource"]] = relationship(
-        "InfrastructureResource"
-    )
+    resource: Mapped[Optional["InfrastructureResource"]] = relationship("InfrastructureResource")
 
     infrastructure: Mapped[Optional["Infrastructure"]] = relationship("Infrastructure")
 
@@ -329,9 +325,7 @@ class CostAlert(NamedModel):
     )
 
     # Relationships
-    budget: Mapped[Optional["CostBudget"]] = relationship(
-        "CostBudget", back_populates="alerts"
-    )
+    budget: Mapped[Optional["CostBudget"]] = relationship("CostBudget", back_populates="alerts")
 
     def resolve(self, resolved_by: uuid.UUID) -> None:
         """Mark alert as resolved."""
@@ -456,9 +450,7 @@ class CostOptimization(NamedModel):
     )
 
     # Relationships
-    resource: Mapped[Optional["InfrastructureResource"]] = relationship(
-        "InfrastructureResource"
-    )
+    resource: Mapped[Optional["InfrastructureResource"]] = relationship("InfrastructureResource")
 
     @property
     def is_implemented(self) -> bool:

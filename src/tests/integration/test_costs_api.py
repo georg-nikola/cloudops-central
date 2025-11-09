@@ -73,9 +73,7 @@ class TestCostEndpoints:
     @pytest.mark.integration
     async def test_get_cost_trends(self, async_client, db_session):
         """Test GET /api/v1/costs/trends endpoint."""
-        response = await async_client.get(
-            "/api/v1/costs/trends", params={"period": "30d"}
-        )
+        response = await async_client.get("/api/v1/costs/trends", params={"period": "30d"})
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()

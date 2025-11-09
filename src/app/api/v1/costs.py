@@ -112,9 +112,7 @@ async def forecast_costs(
     Predicts costs for the specified number of months ahead.
     """
     service = CostService(db)
-    forecast = await service.forecast_costs(
-        months=months, cloud_provider=cloud_provider
-    )
+    forecast = await service.forecast_costs(months=months, cloud_provider=cloud_provider)
     return forecast
 
 
