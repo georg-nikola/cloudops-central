@@ -14,6 +14,7 @@ on:
 
 env:
   DEVMIND_API: ${{ github.event.inputs.devmind_api || 'https://devmind.georg-nikola.com' }}
+  DEVMIND_API_KEY: ${{ secrets.DEVMIND_API_KEY }}
   DEVMIND_TIMEOUT: 30
 
 jobs:
@@ -117,8 +118,10 @@ jobs:
           echo "Request payload:"
           echo $PAYLOAD | jq .
 
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$DEVMIND_API/api/v1/test-intelligence/select" \
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "$DEVMIND_API/api/v1/test-intelligence/select" \
             -H "Content-Type: application/json" \
+            -H "X-API-Key: $DEVMIND_API_KEY" \
             --max-time $DEVMIND_TIMEOUT \
             -d "$PAYLOAD")
 
@@ -193,8 +196,10 @@ jobs:
         id: assess
         continue-on-error: true
         run: |
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$DEVMIND_API/api/v1/failure-predictor/predict" \
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "$DEVMIND_API/api/v1/failure-predictor/predict" \
             -H "Content-Type: application/json" \
+            -H "X-API-Key: $DEVMIND_API_KEY" \
             --max-time $DEVMIND_TIMEOUT \
             -d '${{ steps.metrics.outputs.metrics }}')
 
