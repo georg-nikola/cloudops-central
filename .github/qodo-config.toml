@@ -1,0 +1,58 @@
+# Qodo (Codium AI) Configuration
+# https://github.com/Codium-ai/pr-agent
+
+[config]
+model = "gpt-4"
+fallback_models = ["gpt-3.5-turbo"]
+
+[pr_reviewer]
+enabled = true
+require_tests_review = true
+require_security_review = true
+require_estimate_effort_to_review = true
+automatic_review = true
+num_code_suggestions = 4
+inline_code_comments = true
+persistent_comment = true
+
+[pr_description]
+enabled = true
+add_original_user_description = true
+keep_original_user_title = false
+generate_ai_title = true
+use_bullet_points = true
+extra_instructions = """
+- Focus on infrastructure and cloud operations
+- Highlight security implications
+- Note cost optimization opportunities
+- Mention compliance considerations
+"""
+
+[pr_code_suggestions]
+enabled = true
+num_code_suggestions = 4
+summarize = true
+extra_instructions = """
+- Prioritize security best practices
+- Suggest performance optimizations
+- Recommend error handling improvements
+- Consider cloud-native patterns
+"""
+
+[pr_questions]
+enabled = true
+num_code_suggestions = 3
+
+[pr_test]
+enabled = true
+testing_framework = "pytest"
+num_tests = 3
+avoid_mocks = false
+
+[pr_improve]
+enabled = true
+num_code_suggestions = 4
+
+[github]
+publish_review = true
+publish_inline_comments = true
