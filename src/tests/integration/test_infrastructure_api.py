@@ -25,7 +25,7 @@ class TestInfrastructureEndpoints:
         """Test listing resources with query parameters."""
         response = await async_client.get(
             "/api/v1/infrastructure/resources",
-            params={"cloud_provider": "aws", "resource_type": "ec2_instance"}
+            params={"cloud_provider": "aws", "resource_type": "ec2_instance"},
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -50,8 +50,7 @@ class TestInfrastructureEndpoints:
     async def test_sync_infrastructure(self, async_client, db_session):
         """Test POST /api/v1/infrastructure/sync endpoint."""
         response = await async_client.post(
-            "/api/v1/infrastructure/sync",
-            json={"cloud_provider": "aws"}
+            "/api/v1/infrastructure/sync", json={"cloud_provider": "aws"}
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -94,8 +93,7 @@ class TestInfrastructureValidation:
     async def test_list_resources_pagination(self, async_client, db_session):
         """Test pagination parameters."""
         response = await async_client.get(
-            "/api/v1/infrastructure/resources",
-            params={"skip": 0, "limit": 10}
+            "/api/v1/infrastructure/resources", params={"skip": 0, "limit": 10}
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -104,9 +102,7 @@ class TestInfrastructureValidation:
     @pytest.mark.integration
     async def test_invalid_resource_id(self, async_client, db_session):
         """Test handling of invalid resource ID."""
-        response = await async_client.get(
-            "/api/v1/infrastructure/resources/invalid-id"
-        )
+        response = await async_client.get("/api/v1/infrastructure/resources/invalid-id")
 
         # The stub implementation returns data for any ID,
         # but in a real implementation this would be 404

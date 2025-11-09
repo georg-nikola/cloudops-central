@@ -44,15 +44,15 @@ Base = declarative_base()
 
 class DatabaseManager:
     """Database manager for handling connections and sessions."""
-    
+
     def __init__(self):
         self.engine = engine
         self.session_factory = AsyncSessionLocal
-    
+
     async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
         """
         Get an async database session.
-        
+
         Yields:
             AsyncSession: Database session
         """
@@ -66,15 +66,15 @@ class DatabaseManager:
                 raise
             finally:
                 await session.close()
-    
+
     async def close(self) -> None:
         """Close the database engine."""
         await self.engine.dispose()
-    
+
     async def health_check(self) -> bool:
         """
         Check database connectivity.
-        
+
         Returns:
             bool: True if database is accessible, False otherwise
         """
@@ -94,7 +94,7 @@ db_manager = DatabaseManager()
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     Dependency for getting database session in FastAPI endpoints.
-    
+
     Yields:
         AsyncSession: Database session
     """
@@ -104,14 +104,14 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 class DatabaseTransaction:
     """Context manager for database transactions."""
-    
+
     def __init__(self, session: AsyncSession):
         self.session = session
-    
+
     async def __aenter__(self) -> AsyncSession:
         """Enter the transaction context."""
         return self.session
-    
+
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         """Exit the transaction context."""
         if exc_type is not None:
@@ -124,10 +124,10 @@ class DatabaseTransaction:
 def transaction(session: AsyncSession) -> DatabaseTransaction:
     """
     Create a database transaction context manager.
-    
+
     Args:
         session: Database session
-        
+
     Returns:
         DatabaseTransaction: Transaction context manager
     """
@@ -136,30 +136,30 @@ def transaction(session: AsyncSession) -> DatabaseTransaction:
 
 class Repository:
     """Base repository class for database operations."""
-    
+
     def __init__(self, session: AsyncSession):
         self.session = session
-    
+
     async def commit(self) -> None:
         """Commit the current transaction."""
         await self.session.commit()
-    
+
     async def rollback(self) -> None:
         """Rollback the current transaction."""
         await self.session.rollback()
-    
+
     async def refresh(self, instance) -> None:
         """Refresh an instance from the database."""
         await self.session.refresh(instance)
-    
+
     async def execute_raw(self, query: str, params: Optional[dict] = None):
         """
         Execute a raw SQL query.
-        
+
         Args:
             query: SQL query string
             params: Query parameters
-            
+
         Returns:
             Query result
         """
@@ -181,7 +181,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 @event.listens_for(engine.sync_engine, "checkout")
 def ping_connection(dbapi_connection, connection_record, connection_proxy):
     """Ensure connections are alive when checked out from the pool."""
-    connection_record.info['pid'] = dbapi_connection.get_backend_pid()
+    connection_record.info["pid"] = dbapi_connection.get_backend_pid()
 
 
 async def init_db() -> None:
@@ -218,7 +218,7 @@ async def reset_db() -> None:
 # Connection pool monitoring
 class ConnectionPoolMonitor:
     """Monitor database connection pool metrics."""
-    
+
     @staticmethod
     def get_pool_status() -> dict:
         """Get current connection pool status."""
@@ -230,7 +230,7 @@ class ConnectionPoolMonitor:
             "overflow": pool.overflow(),
             "invalid": pool.invalid(),
         }
-    
+
     @staticmethod
     async def log_pool_status() -> None:
         """Log current pool status."""
@@ -242,7 +242,7 @@ class ConnectionPoolMonitor:
 async def database_health_check() -> dict:
     """
     Comprehensive database health check.
-    
+
     Returns:
         dict: Health check results
     """
@@ -251,10 +251,10 @@ async def database_health_check() -> dict:
         async with AsyncSessionLocal() as session:
             result = await session.execute("SELECT version()")
             version = result.scalar()
-        
+
         # Pool status
         pool_status = ConnectionPoolMonitor.get_pool_status()
-        
+
         return {
             "status": "healthy",
             "database_version": version,

@@ -17,6 +17,7 @@ router = APIRouter()
 
 class CostRecordResponse(BaseModel):
     """Response schema for cost records."""
+
     id: int
     cloud_provider: str
     service: str
@@ -31,6 +32,7 @@ class CostRecordResponse(BaseModel):
 
 class CostSummaryResponse(BaseModel):
     """Response schema for cost summary."""
+
     total_cost: float
     currency: str
     breakdown_by_provider: dict
@@ -40,6 +42,7 @@ class CostSummaryResponse(BaseModel):
 
 class OptimizationRecommendation(BaseModel):
     """Optimization recommendation schema."""
+
     recommendation_id: str
     resource_id: str
     recommendation_type: str
@@ -57,7 +60,7 @@ async def list_cost_records(
     service: Optional[str] = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, le=1000),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     List cost records with optional filtering.
@@ -74,7 +77,7 @@ async def list_cost_records(
         cloud_provider=cloud_provider,
         service=service,
         skip=skip,
-        limit=limit
+        limit=limit,
     )
     return records
 
@@ -84,7 +87,7 @@ async def get_cost_summary(
     start_date: Optional[date] = Query(None),
     end_date: Optional[date] = Query(None),
     cloud_provider: Optional[str] = Query(None),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Get cost summary and breakdown.
@@ -92,9 +95,7 @@ async def get_cost_summary(
     """
     service = CostService(db)
     summary = await service.get_summary(
-        start_date=start_date,
-        end_date=end_date,
-        cloud_provider=cloud_provider
+        start_date=start_date, end_date=end_date, cloud_provider=cloud_provider
     )
     return summary
 
@@ -103,7 +104,7 @@ async def get_cost_summary(
 async def forecast_costs(
     months: int = Query(3, ge=1, le=12),
     cloud_provider: Optional[str] = Query(None),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Forecast future costs using ML models.
@@ -111,8 +112,7 @@ async def forecast_costs(
     """
     service = CostService(db)
     forecast = await service.forecast_costs(
-        months=months,
-        cloud_provider=cloud_provider
+        months=months, cloud_provider=cloud_provider
     )
     return forecast
 
@@ -121,17 +121,14 @@ async def forecast_costs(
 async def detect_anomalies(
     days: int = Query(30, ge=7, le=90),
     cloud_provider: Optional[str] = Query(None),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Detect cost anomalies using ML.
     Identifies unusual spending patterns in the specified time window.
     """
     service = CostService(db)
-    anomalies = await service.detect_anomalies(
-        days=days,
-        cloud_provider=cloud_provider
-    )
+    anomalies = await service.detect_anomalies(days=days, cloud_provider=cloud_provider)
     return anomalies
 
 
@@ -139,7 +136,7 @@ async def detect_anomalies(
 async def get_optimization_recommendations(
     priority: Optional[str] = Query(None, regex="^(high|medium|low)$"),
     min_savings: Optional[float] = Query(None, ge=0),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Get AI-driven cost optimization recommendations.
@@ -149,7 +146,6 @@ async def get_optimization_recommendations(
     """
     service = CostService(db)
     recommendations = await service.get_optimization_recommendations(
-        priority=priority,
-        min_savings=min_savings
+        priority=priority, min_savings=min_savings
     )
     return recommendations

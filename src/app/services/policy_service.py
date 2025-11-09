@@ -16,7 +16,7 @@ class PolicyService:
         severity: Optional[str] = None,
         enabled: Optional[bool] = None,
         skip: int = 0,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[Dict[str, Any]]:
         """List policies with filters."""
         # Placeholder implementation
@@ -29,12 +29,12 @@ class PolicyService:
                 "severity": "critical",
                 "rules": {
                     "resource_types": ["s3", "ebs", "rds"],
-                    "required_settings": {"encryption": True}
+                    "required_settings": {"encryption": True},
                 },
                 "enabled": True,
                 "violation_count": 5,
                 "created_at": "2025-01-01T00:00:00Z",
-                "updated_at": "2025-10-01T00:00:00Z"
+                "updated_at": "2025-10-01T00:00:00Z",
             }
         ]
 
@@ -50,7 +50,7 @@ class PolicyService:
             "enabled": True,
             "violation_count": 5,
             "created_at": "2025-01-01T00:00:00Z",
-            "updated_at": "2025-10-01T00:00:00Z"
+            "updated_at": "2025-10-01T00:00:00Z",
         }
 
     async def create_policy(self, policy_data: Any) -> Dict[str, Any]:
@@ -61,13 +61,11 @@ class PolicyService:
             **policy_data.dict(),
             "violation_count": 0,
             "created_at": "2025-10-21T18:00:00Z",
-            "updated_at": "2025-10-21T18:00:00Z"
+            "updated_at": "2025-10-21T18:00:00Z",
         }
 
     async def update_policy(
-        self,
-        policy_id: int,
-        policy_data: Any
+        self, policy_id: int, policy_data: Any
     ) -> Optional[Dict[str, Any]]:
         """Update an existing policy."""
         return {
@@ -75,7 +73,7 @@ class PolicyService:
             **policy_data.dict(),
             "violation_count": 5,
             "created_at": "2025-01-01T00:00:00Z",
-            "updated_at": "2025-10-21T18:00:00Z"
+            "updated_at": "2025-10-21T18:00:00Z",
         }
 
     async def delete_policy(self, policy_id: int) -> bool:
@@ -83,9 +81,7 @@ class PolicyService:
         return True
 
     async def evaluate_policies(
-        self,
-        resource_id: Optional[str] = None,
-        resource_type: Optional[str] = None
+        self, resource_id: Optional[str] = None, resource_type: Optional[str] = None
     ) -> Dict[str, Any]:
         """Evaluate policies against resources."""
         return {
@@ -95,7 +91,7 @@ class PolicyService:
             "critical_violations": 2,
             "high_violations": 3,
             "medium_violations": 2,
-            "low_violations": 1
+            "low_violations": 1,
         }
 
     async def list_violations(
@@ -104,7 +100,7 @@ class PolicyService:
         severity: Optional[str] = None,
         resolved: Optional[bool] = None,
         skip: int = 0,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[Dict[str, Any]]:
         """List policy violations."""
         return [
@@ -116,14 +112,12 @@ class PolicyService:
                 "severity": "critical",
                 "description": "EBS volume does not have encryption enabled",
                 "detected_at": "2025-10-20T15:30:00Z",
-                "resolved": False
+                "resolved": False,
             }
         ]
 
     async def resolve_violation(
-        self,
-        violation_id: int,
-        resolution_notes: Optional[str] = None
+        self, violation_id: int, resolution_notes: Optional[str] = None
     ) -> bool:
         """Mark a violation as resolved."""
         return True

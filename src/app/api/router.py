@@ -10,25 +10,11 @@ api_router = APIRouter()
 
 # Include all v1 routers
 api_router.include_router(
-    infrastructure.router,
-    prefix="/infrastructure",
-    tags=["infrastructure"]
+    infrastructure.router, prefix="/infrastructure", tags=["infrastructure"]
 )
 
-api_router.include_router(
-    costs.router,
-    prefix="/costs",
-    tags=["costs"]
-)
+api_router.include_router(costs.router, prefix="/costs", tags=["costs"])
 
-api_router.include_router(
-    policies.router,
-    prefix="/policies",
-    tags=["policies"]
-)
+api_router.include_router(policies.router, prefix="/policies", tags=["policies"])
 
-api_router.include_router(
-    users.router,
-    prefix="/users",
-    tags=["users"]
-)
+api_router.include_router(users.router, prefix="/users", tags=["users"])

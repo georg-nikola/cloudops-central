@@ -32,8 +32,7 @@ class TestInfrastructureService:
         """Test listing resources with filters."""
         service = InfrastructureService(db_session)
         resources = await service.list_resources(
-            cloud_provider="aws",
-            resource_type="ec2_instance"
+            cloud_provider="aws", resource_type="ec2_instance"
         )
 
         assert isinstance(resources, list)
@@ -105,8 +104,7 @@ class TestCostService:
         """Test getting cost breakdown."""
         service = CostService(db_session)
         breakdown = await service.get_cost_breakdown(
-            start_date="2025-11-01",
-            end_date="2025-11-30"
+            start_date="2025-11-01", end_date="2025-11-30"
         )
 
         assert isinstance(breakdown, dict)

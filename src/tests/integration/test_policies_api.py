@@ -42,7 +42,7 @@ class TestPolicyEndpoints:
             "severity": "high",
             "policy_code": "package test\n\ndefault allow = false",
             "rule_engine": "opa",
-            "target_resources": ["ec2_instance", "rds_instance"]
+            "target_resources": ["ec2_instance", "rds_instance"],
         }
         response = await async_client.post("/api/v1/policies", json=policy_data)
 
@@ -56,13 +56,9 @@ class TestPolicyEndpoints:
     async def test_update_policy(self, async_client, db_session):
         """Test PUT /api/v1/policies/{policy_id} endpoint."""
         policy_id = "policy-123"
-        update_data = {
-            "name": "Updated Policy Name",
-            "severity": "critical"
-        }
+        update_data = {"name": "Updated Policy Name", "severity": "critical"}
         response = await async_client.put(
-            f"/api/v1/policies/{policy_id}",
-            json=update_data
+            f"/api/v1/policies/{policy_id}", json=update_data
         )
 
         assert response.status_code in [status.HTTP_200_OK, status.HTTP_404_NOT_FOUND]
@@ -77,19 +73,16 @@ class TestPolicyEndpoints:
         assert response.status_code in [
             status.HTTP_204_NO_CONTENT,
             status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_404_NOT_FOUND,
         ]
 
     @pytest.mark.asyncio
     @pytest.mark.integration
     async def test_check_compliance(self, async_client, db_session):
         """Test POST /api/v1/policies/check-compliance endpoint."""
-        check_data = {
-            "resource_id": "i-1234567890abcdef0"
-        }
+        check_data = {"resource_id": "i-1234567890abcdef0"}
         response = await async_client.post(
-            "/api/v1/policies/check-compliance",
-            json=check_data
+            "/api/v1/policies/check-compliance", json=check_data
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -130,11 +123,11 @@ class TestPolicyValidation:
             "name": "Test Policy",
             "policy_type": "security",
             "severity": "invalid-severity",
-            "rules": {}
+            "rules": {},
         }
         response = await async_client.post("/api/v1/policies", json=invalid_data)
 
         assert response.status_code in [
             status.HTTP_422_UNPROCESSABLE_ENTITY,
-            status.HTTP_400_BAD_REQUEST
+            status.HTTP_400_BAD_REQUEST,
         ]

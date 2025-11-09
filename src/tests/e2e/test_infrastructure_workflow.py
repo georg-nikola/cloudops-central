@@ -25,8 +25,7 @@ class TestInfrastructureDiscoveryWorkflow:
         """
         # Step 1: Trigger sync
         sync_response = await async_client.post(
-            "/api/v1/infrastructure/sync",
-            json={"cloud_provider": "aws"}
+            "/api/v1/infrastructure/sync", json={"cloud_provider": "aws"}
         )
         assert sync_response.status_code == status.HTTP_200_OK
         sync_data = sync_response.json()
@@ -56,9 +55,7 @@ class TestInfrastructureDiscoveryWorkflow:
         assert "drift_detected" in drift_data
 
         # Step 5: View statistics
-        stats_response = await async_client.get(
-            "/api/v1/infrastructure/statistics"
-        )
+        stats_response = await async_client.get("/api/v1/infrastructure/statistics")
         assert stats_response.status_code == status.HTTP_200_OK
         stats = stats_response.json()
         assert stats["total_resources"] > 0
@@ -83,15 +80,13 @@ class TestInfrastructureFilteringWorkflow:
 
         # Filter by provider
         aws_response = await async_client.get(
-            "/api/v1/infrastructure/resources",
-            params={"cloud_provider": "aws"}
+            "/api/v1/infrastructure/resources", params={"cloud_provider": "aws"}
         )
         assert aws_response.status_code == status.HTTP_200_OK
 
         # Filter by type
         ec2_response = await async_client.get(
-            "/api/v1/infrastructure/resources",
-            params={"resource_type": "ec2_instance"}
+            "/api/v1/infrastructure/resources", params={"resource_type": "ec2_instance"}
         )
         assert ec2_response.status_code == status.HTTP_200_OK
 
@@ -123,8 +118,8 @@ class TestCostOptimizationWorkflow:
             params={
                 "start_date": "2025-11-01",
                 "end_date": "2025-11-30",
-                "group_by": "service"
-            }
+                "group_by": "service",
+            },
         )
         assert breakdown_response.status_code == status.HTTP_200_OK
 
@@ -136,8 +131,7 @@ class TestCostOptimizationWorkflow:
 
         # Step 4: Get forecast
         forecast_response = await async_client.get(
-            "/api/v1/costs/forecast",
-            params={"days": 30}
+            "/api/v1/costs/forecast", params={"days": 30}
         )
         assert forecast_response.status_code == status.HTTP_200_OK
         forecast = forecast_response.json()
@@ -175,12 +169,9 @@ class TestPolicyComplianceWorkflow:
             "severity": "high",
             "policy_code": "package e2e\n\ndefault allow = true",
             "rule_engine": "opa",
-            "target_resources": ["ec2_instance"]
+            "target_resources": ["ec2_instance"],
         }
-        create_response = await async_client.post(
-            "/api/v1/policies",
-            json=policy_data
-        )
+        create_response = await async_client.post("/api/v1/policies", json=policy_data)
         assert create_response.status_code == status.HTTP_201_CREATED
         created_policy = create_response.json()
         policy_id = created_policy["id"]
@@ -194,7 +185,7 @@ class TestPolicyComplianceWorkflow:
         # Step 3: Check compliance
         compliance_response = await async_client.post(
             "/api/v1/policies/check-compliance",
-            json={"resource_id": "i-1234567890abcdef0"}
+            json={"resource_id": "i-1234567890abcdef0"},
         )
         assert compliance_response.status_code == status.HTTP_200_OK
 
@@ -204,13 +195,12 @@ class TestPolicyComplianceWorkflow:
 
         # Step 5: Update policy
         update_response = await async_client.put(
-            f"/api/v1/policies/{policy_id}",
-            json={"severity": "critical"}
+            f"/api/v1/policies/{policy_id}", json={"severity": "critical"}
         )
         # May return 200 or 404 depending on implementation
         assert update_response.status_code in [
             status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_404_NOT_FOUND,
         ]
 
         # Step 6: Delete policy
@@ -218,7 +208,7 @@ class TestPolicyComplianceWorkflow:
         assert delete_response.status_code in [
             status.HTTP_204_NO_CONTENT,
             status.HTTP_200_OK,
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_404_NOT_FOUND,
         ]
 
 

@@ -37,6 +37,7 @@ from app.models.policies import Policy
 # Test Configuration
 # ============================================
 
+
 def get_test_settings() -> Settings:
     """Override settings for testing."""
     return Settings(
@@ -57,6 +58,7 @@ app.dependency_overrides[get_settings] = get_test_settings
 # ============================================
 # Database Fixtures
 # ============================================
+
 
 @pytest.fixture(scope="session")
 def event_loop() -> Generator:
@@ -100,8 +102,11 @@ async def test_db_session(test_db_engine) -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest_asyncio.fixture(scope="function")
-async def db_session(test_db_session: AsyncSession) -> AsyncGenerator[AsyncSession, None]:
+async def db_session(
+    test_db_session: AsyncSession,
+) -> AsyncGenerator[AsyncSession, None]:
     """Override the get_db dependency with test database."""
+
     async def override_get_db():
         yield test_db_session
 
@@ -113,6 +118,7 @@ async def db_session(test_db_session: AsyncSession) -> AsyncGenerator[AsyncSessi
 # ============================================
 # HTTP Client Fixtures
 # ============================================
+
 
 @pytest.fixture(scope="function")
 def client() -> Generator[TestClient, None, None]:
@@ -131,6 +137,7 @@ async def async_client() -> AsyncGenerator[AsyncClient, None]:
 # ============================================
 # Authentication Fixtures
 # ============================================
+
 
 @pytest.fixture
 def test_user_data() -> dict:
@@ -206,6 +213,7 @@ def admin_auth_headers(test_admin_data: dict) -> dict:
 # Model Fixtures
 # ============================================
 
+
 @pytest_asyncio.fixture
 async def test_cloud_provider(db_session: AsyncSession) -> CloudProvider:
     """Create a test cloud provider."""
@@ -243,7 +251,7 @@ async def test_resource_type(db_session: AsyncSession) -> "ResourceType":
 async def test_infrastructure_resource(
     db_session: AsyncSession,
     test_cloud_provider: CloudProvider,
-    test_resource_type: "ResourceType"
+    test_resource_type: "ResourceType",
 ) -> InfrastructureResource:
     """Create a test infrastructure resource."""
     from app.models.infrastructure import ResourceStatus
@@ -288,7 +296,7 @@ async def test_policy(db_session: AsyncSession) -> Policy:
 async def test_cost_record(
     db_session: AsyncSession,
     test_infrastructure_resource: InfrastructureResource,
-    test_cloud_provider: CloudProvider
+    test_cloud_provider: CloudProvider,
 ) -> CostRecord:
     """Create a test cost record."""
     from datetime import datetime, timedelta
@@ -318,18 +326,23 @@ async def test_cost_record(
 # Mock Cloud Provider Fixtures
 # ============================================
 
+
 @pytest.fixture
 def mock_boto3_client():
     """Mock boto3 client for AWS."""
     mock = MagicMock()
     mock.describe_instances.return_value = {
-        "Reservations": [{
-            "Instances": [{
-                "InstanceId": "i-1234567890abcdef0",
-                "InstanceType": "t3.medium",
-                "State": {"Name": "running"},
-            }]
-        }]
+        "Reservations": [
+            {
+                "Instances": [
+                    {
+                        "InstanceId": "i-1234567890abcdef0",
+                        "InstanceType": "t3.medium",
+                        "State": {"Name": "running"},
+                    }
+                ]
+            }
+        ]
     }
     return mock
 
@@ -352,6 +365,7 @@ def mock_gcp_client():
 # Redis Fixtures
 # ============================================
 
+
 @pytest.fixture
 def mock_redis():
     """Mock Redis client."""
@@ -366,6 +380,7 @@ def mock_redis():
 # ============================================
 # Environment Fixtures
 # ============================================
+
 
 @pytest.fixture(scope="function", autouse=True)
 def test_env_vars():
@@ -382,6 +397,7 @@ def test_env_vars():
 # ============================================
 # Utility Fixtures
 # ============================================
+
 
 @pytest.fixture
 def sample_api_response() -> dict:
@@ -408,6 +424,7 @@ def sample_error_response() -> dict:
 # ============================================
 # Cleanup Fixtures
 # ============================================
+
 
 @pytest.fixture(scope="function", autouse=True)
 async def cleanup_after_test(db_session: AsyncSession):

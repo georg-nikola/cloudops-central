@@ -45,18 +45,18 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """
     # Startup
     logger.info("Starting CloudOps Central API server...")
-    
+
     # Create database tables
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    
+
     # Setup monitoring
     await setup_monitoring()
-    
+
     logger.info("CloudOps Central API server started successfully")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down CloudOps Central API server...")
     await engine.dispose()
@@ -77,10 +77,7 @@ app = FastAPI(
 
 # Add middleware
 if settings.ALLOWED_HOSTS:
-    app.add_middleware(
-        TrustedHostMiddleware,
-        allowed_hosts=settings.ALLOWED_HOSTS
-    )
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.ALLOWED_HOSTS)
 
 app.add_middleware(
     CORSMiddleware,
@@ -109,7 +106,9 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
 @app.exception_handler(CloudOpsException)
-async def cloudops_exception_handler(request: Request, exc: CloudOpsException) -> JSONResponse:
+async def cloudops_exception_handler(
+    request: Request, exc: CloudOpsException
+) -> JSONResponse:
     """Handle CloudOps custom exceptions."""
     return JSONResponse(
         status_code=exc.status_code,

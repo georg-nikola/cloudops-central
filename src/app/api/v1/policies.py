@@ -16,6 +16,7 @@ router = APIRouter()
 
 class PolicyBase(BaseModel):
     """Base schema for policies."""
+
     name: str
     description: Optional[str] = None
     policy_type: str
@@ -26,6 +27,7 @@ class PolicyBase(BaseModel):
 
 class PolicyResponse(PolicyBase):
     """Response schema for policies."""
+
     id: int
     violation_count: int = 0
     created_at: str
@@ -37,6 +39,7 @@ class PolicyResponse(PolicyBase):
 
 class PolicyViolationResponse(BaseModel):
     """Response schema for policy violations."""
+
     id: int
     policy_id: int
     policy_name: str
@@ -52,6 +55,7 @@ class PolicyViolationResponse(BaseModel):
 
 class PolicyEvaluationRequest(BaseModel):
     """Request schema for policy evaluation."""
+
     resource_id: Optional[str] = None
     resource_type: Optional[str] = None
 
@@ -63,7 +67,7 @@ async def list_policies(
     enabled: Optional[bool] = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, le=1000),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     List all policies with optional filtering.
@@ -78,32 +82,26 @@ async def list_policies(
         severity=severity,
         enabled=enabled,
         skip=skip,
-        limit=limit
+        limit=limit,
     )
     return policies
 
 
 @router.get("/{policy_id}", response_model=PolicyResponse)
-async def get_policy(
-    policy_id: int,
-    db: AsyncSession = Depends(get_db)
-):
+async def get_policy(policy_id: int, db: AsyncSession = Depends(get_db)):
     """Get a specific policy by ID."""
     service = PolicyService(db)
     policy = await service.get_policy(policy_id)
     if not policy:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Policy {policy_id} not found"
+            detail=f"Policy {policy_id} not found",
         )
     return policy
 
 
 @router.post("/", response_model=PolicyResponse, status_code=status.HTTP_201_CREATED)
-async def create_policy(
-    policy: PolicyBase,
-    db: AsyncSession = Depends(get_db)
-):
+async def create_policy(policy: PolicyBase, db: AsyncSession = Depends(get_db)):
     """Create a new policy."""
     service = PolicyService(db)
     created_policy = await service.create_policy(policy)
@@ -112,9 +110,7 @@ async def create_policy(
 
 @router.put("/{policy_id}", response_model=PolicyResponse)
 async def update_policy(
-    policy_id: int,
-    policy: PolicyBase,
-    db: AsyncSession = Depends(get_db)
+    policy_id: int, policy: PolicyBase, db: AsyncSession = Depends(get_db)
 ):
     """Update an existing policy."""
     service = PolicyService(db)
@@ -122,30 +118,26 @@ async def update_policy(
     if not updated_policy:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Policy {policy_id} not found"
+            detail=f"Policy {policy_id} not found",
         )
     return updated_policy
 
 
 @router.delete("/{policy_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_policy(
-    policy_id: int,
-    db: AsyncSession = Depends(get_db)
-):
+async def delete_policy(policy_id: int, db: AsyncSession = Depends(get_db)):
     """Delete a policy."""
     service = PolicyService(db)
     deleted = await service.delete_policy(policy_id)
     if not deleted:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Policy {policy_id} not found"
+            detail=f"Policy {policy_id} not found",
         )
 
 
 @router.post("/evaluate")
 async def evaluate_policies(
-    request: PolicyEvaluationRequest,
-    db: AsyncSession = Depends(get_db)
+    request: PolicyEvaluationRequest, db: AsyncSession = Depends(get_db)
 ):
     """
     Evaluate policies against infrastructure resources.
@@ -153,8 +145,7 @@ async def evaluate_policies(
     """
     service = PolicyService(db)
     results = await service.evaluate_policies(
-        resource_id=request.resource_id,
-        resource_type=request.resource_type
+        resource_id=request.resource_id, resource_type=request.resource_type
     )
     return results
 
@@ -166,7 +157,7 @@ async def list_violations(
     resolved: Optional[bool] = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, le=1000),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     List policy violations with optional filtering.
@@ -181,7 +172,7 @@ async def list_violations(
         severity=severity,
         resolved=resolved,
         skip=skip,
-        limit=limit
+        limit=limit,
     )
     return violations
 
@@ -190,7 +181,7 @@ async def list_violations(
 async def resolve_violation(
     violation_id: int,
     resolution_notes: Optional[str] = None,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """Mark a policy violation as resolved."""
     service = PolicyService(db)
@@ -198,6 +189,6 @@ async def resolve_violation(
     if not resolved:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Violation {violation_id} not found"
+            detail=f"Violation {violation_id} not found",
         )
     return {"message": "Violation resolved successfully"}

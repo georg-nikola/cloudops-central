@@ -16,7 +16,7 @@ class InfrastructureService:
         cloud_provider: Optional[str] = None,
         resource_type: Optional[str] = None,
         skip: int = 0,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[Dict[str, Any]]:
         """List infrastructure resources with optional filters."""
         # Placeholder implementation - would query database
@@ -32,7 +32,7 @@ class InfrastructureService:
                 "drift_detected": False,
                 "last_synced": "2025-10-21T10:00:00Z",
                 "tags": {"Environment": "production", "Team": "platform"},
-                "configuration": {"instance_type": "t3.medium"}
+                "configuration": {"instance_type": "t3.medium"},
             }
         ]
 
@@ -47,20 +47,15 @@ class InfrastructureService:
             "name": "web-server-01",
             "status": "running",
             "drift_detected": False,
-            "last_synced": "2025-10-21T10:00:00Z"
+            "last_synced": "2025-10-21T10:00:00Z",
         }
 
     async def sync_infrastructure(
-        self,
-        cloud_provider: Optional[str] = None
+        self, cloud_provider: Optional[str] = None
     ) -> Dict[str, int]:
         """Sync infrastructure from cloud providers."""
         # Placeholder - would integrate with AWS/Azure/GCP APIs
-        return {
-            "discovered": 150,
-            "updated": 145,
-            "new": 5
-        }
+        return {"discovered": 150, "updated": 145, "new": 5}
 
     async def detect_drift(self, resource_id: str) -> Dict[str, Any]:
         """Detect configuration drift for a resource."""
@@ -68,27 +63,17 @@ class InfrastructureService:
         return {
             "resource_id": resource_id,
             "drift_detected": False,
-            "drift_details": None
+            "drift_details": None,
         }
 
     async def get_statistics(
-        self,
-        cloud_provider: Optional[str] = None
+        self, cloud_provider: Optional[str] = None
     ) -> Dict[str, Any]:
         """Get infrastructure statistics."""
         return {
             "total_resources": 150,
-            "by_provider": {
-                "aws": 100,
-                "azure": 30,
-                "gcp": 20
-            },
-            "by_type": {
-                "compute": 45,
-                "storage": 60,
-                "network": 30,
-                "database": 15
-            },
+            "by_provider": {"aws": 100, "azure": 30, "gcp": 20},
+            "by_type": {"compute": 45, "storage": 60, "network": 30, "database": 15},
             "drift_detected": 3,
-            "policy_violations": 2
+            "policy_violations": 2,
         }

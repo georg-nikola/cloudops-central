@@ -16,6 +16,7 @@ router = APIRouter()
 
 class InfrastructureResourceBase(BaseModel):
     """Base schema for infrastructure resources."""
+
     resource_id: str
     resource_type: str
     cloud_provider: str
@@ -27,6 +28,7 @@ class InfrastructureResourceBase(BaseModel):
 
 class InfrastructureResourceResponse(InfrastructureResourceBase):
     """Response schema for infrastructure resources."""
+
     id: int
     status: str
     drift_detected: bool
@@ -38,6 +40,7 @@ class InfrastructureResourceResponse(InfrastructureResourceBase):
 
 class DriftDetectionResponse(BaseModel):
     """Response schema for drift detection."""
+
     resource_id: str
     drift_detected: bool
     drift_details: Optional[dict] = None
@@ -49,7 +52,7 @@ async def list_resources(
     resource_type: Optional[str] = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, le=1000),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     List infrastructure resources with optional filtering.
@@ -64,31 +67,27 @@ async def list_resources(
         cloud_provider=cloud_provider,
         resource_type=resource_type,
         skip=skip,
-        limit=limit
+        limit=limit,
     )
     return resources
 
 
 @router.get("/resources/{resource_id}", response_model=InfrastructureResourceResponse)
-async def get_resource(
-    resource_id: str,
-    db: AsyncSession = Depends(get_db)
-):
+async def get_resource(resource_id: str, db: AsyncSession = Depends(get_db)):
     """Get a specific infrastructure resource by ID."""
     service = InfrastructureService(db)
     resource = await service.get_resource(resource_id)
     if not resource:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Resource {resource_id} not found"
+            detail=f"Resource {resource_id} not found",
         )
     return resource
 
 
 @router.post("/sync")
 async def sync_infrastructure(
-    cloud_provider: Optional[str] = None,
-    db: AsyncSession = Depends(get_db)
+    cloud_provider: Optional[str] = None, db: AsyncSession = Depends(get_db)
 ):
     """
     Trigger infrastructure synchronization.
@@ -100,15 +99,14 @@ async def sync_infrastructure(
         "message": "Infrastructure sync initiated",
         "cloud_provider": cloud_provider or "all",
         "resources_discovered": result.get("discovered", 0),
-        "resources_updated": result.get("updated", 0)
+        "resources_updated": result.get("updated", 0),
     }
 
 
-@router.post("/resources/{resource_id}/detect-drift", response_model=DriftDetectionResponse)
-async def detect_drift(
-    resource_id: str,
-    db: AsyncSession = Depends(get_db)
-):
+@router.post(
+    "/resources/{resource_id}/detect-drift", response_model=DriftDetectionResponse
+)
+async def detect_drift(resource_id: str, db: AsyncSession = Depends(get_db)):
     """
     Detect configuration drift for a specific resource.
     Compares actual state with expected state from IaC.
@@ -120,8 +118,7 @@ async def detect_drift(
 
 @router.get("/statistics")
 async def get_statistics(
-    cloud_provider: Optional[str] = None,
-    db: AsyncSession = Depends(get_db)
+    cloud_provider: Optional[str] = None, db: AsyncSession = Depends(get_db)
 ):
     """
     Get infrastructure statistics and metrics.

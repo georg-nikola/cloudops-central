@@ -90,6 +90,7 @@ async def run_async_migrations() -> None:
 
     # Allow DATABASE_URL from environment to override
     import os
+
     if database_url := os.getenv("DATABASE_URL"):
         # Convert to async URL
         if database_url.startswith("postgresql://"):
