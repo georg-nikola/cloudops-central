@@ -17,7 +17,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import NamedModel
 
 
-class PolicyStatus(str, Enum):
+class PolicyStatus(str, enum.Enum):
     """Enumeration of policy statuses."""
 
     DRAFT = "draft"
@@ -26,7 +26,7 @@ class PolicyStatus(str, Enum):
     DEPRECATED = "deprecated"
 
 
-class PolicySeverity(str, Enum):
+class PolicySeverity(str, enum.Enum):
     """Enumeration of policy severity levels."""
 
     LOW = "low"
@@ -35,7 +35,7 @@ class PolicySeverity(str, Enum):
     CRITICAL = "critical"
 
 
-class PolicyType(str, Enum):
+class PolicyType(str, enum.Enum):
     """Enumeration of policy types."""
 
     SECURITY = "security"
@@ -46,7 +46,7 @@ class PolicyType(str, Enum):
     BACKUP = "backup"
 
 
-class ViolationStatus(str, Enum):
+class ViolationStatus(str, enum.Enum):
     """Enumeration of violation statuses."""
 
     OPEN = "open"
@@ -56,7 +56,7 @@ class ViolationStatus(str, Enum):
     FALSE_POSITIVE = "false_positive"
 
 
-class RuleEngine(str, Enum):
+class RuleEngine(str, enum.Enum):
     """Enumeration of rule engines."""
 
     OPA = "opa"  # Open Policy Agent

@@ -18,7 +18,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import BaseModel, NamedModel
 
 
-class CostPeriod(str, Enum):
+class CostPeriod(str, enum.Enum):
     """Enumeration of cost tracking periods."""
 
     HOURLY = "hourly"
@@ -28,7 +28,7 @@ class CostPeriod(str, Enum):
     YEARLY = "yearly"
 
 
-class AlertStatus(str, Enum):
+class AlertStatus(str, enum.Enum):
     """Enumeration of alert statuses."""
 
     ACTIVE = "active"
@@ -37,7 +37,7 @@ class AlertStatus(str, Enum):
     SUPPRESSED = "suppressed"
 
 
-class AlertType(str, Enum):
+class AlertType(str, enum.Enum):
     """Enumeration of alert types."""
 
     BUDGET_THRESHOLD = "budget_threshold"
@@ -47,7 +47,7 @@ class AlertType(str, Enum):
     OPTIMIZATION_OPPORTUNITY = "optimization_opportunity"
 
 
-class BudgetStatus(str, Enum):
+class BudgetStatus(str, enum.Enum):
     """Enumeration of budget statuses."""
 
     ACTIVE = "active"

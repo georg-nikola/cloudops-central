@@ -17,7 +17,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import BaseModel
 
 
-class AuditEventType(str, Enum):
+class AuditEventType(str, enum.Enum):
     """Enumeration of audit event types."""
 
     CREATE = "create"
@@ -35,7 +35,7 @@ class AuditEventType(str, Enum):
     SECURITY_EVENT = "security_event"
 
 
-class AuditSeverity(str, Enum):
+class AuditSeverity(str, enum.Enum):
     """Enumeration of audit event severity levels."""
 
     INFO = "info"
@@ -44,7 +44,7 @@ class AuditSeverity(str, Enum):
     CRITICAL = "critical"
 
 
-class AuditStatus(str, Enum):
+class AuditStatus(str, enum.Enum):
     """Enumeration of audit event statuses."""
 
     SUCCESS = "success"
