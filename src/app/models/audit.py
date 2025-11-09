@@ -8,7 +8,7 @@ providing comprehensive activity monitoring and compliance support.
 import enum
 import uuid
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy import DateTime, Enum, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import INET, JSON, UUID
