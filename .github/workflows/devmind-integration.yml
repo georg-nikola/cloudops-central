@@ -10,10 +10,10 @@ on:
       devmind_api:
         description: 'DevMind API URL'
         required: false
-        default: 'https://devmind.example.com'
+        default: 'https://devmind.georg-nikola.com'
 
 env:
-  DEVMIND_API: ${{ github.event.inputs.devmind_api || 'https://devmind.example.com' }}
+  DEVMIND_API: ${{ github.event.inputs.devmind_api || 'https://devmind.georg-nikola.com' }}
   DEVMIND_TIMEOUT: 30
 
 jobs:
