@@ -99,7 +99,7 @@ pre-commit==3.6.0
 debugpy==1.8.0
 
 # Performance
-gunicorn==21.2.0
+gunicorn==23.0.0
 
 # Additional cloud tools
 kubernetes==28.1.0
