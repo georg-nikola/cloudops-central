@@ -92,7 +92,7 @@ dynaconf==3.2.4
 dnspython==2.4.2
 
 # File handling
-aiofiles==23.2.1
+aiofiles==25.1.0
 
 # Development tools
 pre-commit==3.6.0
