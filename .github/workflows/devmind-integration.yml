@@ -282,7 +282,7 @@ jobs:
     needs: [intelligent-test-selection, failure-risk-assessment, analyze-changes]
     if: github.event_name == 'pull_request' && always()
     steps:
-      - uses: actions/github-script@v6
+      - uses: actions/github-script@v8
         with:
           script: |
             const selected_tests = ${{ needs.intelligent-test-selection.outputs.selected_tests || '[]' }};
