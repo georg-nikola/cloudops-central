@@ -67,8 +67,8 @@ jobs:
             CHANGED=$(git diff --name-only HEAD~1 HEAD)
           fi
 
-          # Convert to JSON array format
-          JSON_ARRAY=$(echo "$CHANGED" | jq -R -s 'split("\n") | map(select(length > 0))')
+          # Convert to JSON array format (compact, single line)
+          JSON_ARRAY=$(echo "$CHANGED" | jq -R -s -c 'split("\n") | map(select(length > 0))')
 
           echo "changed_files=$JSON_ARRAY" >> $GITHUB_OUTPUT
 
@@ -281,6 +281,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [intelligent-test-selection, failure-risk-assessment, analyze-changes]
     if: github.event_name == 'pull_request' && always()
+    permissions:
+      issues: write
+      pull-requests: write
     steps:
       - uses: actions/github-script@v6
         with:

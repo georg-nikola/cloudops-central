@@ -401,6 +401,112 @@ cd src && docker build --target celery-worker -t cloudops-central:worker .
 cd src && docker build --target celery-beat -t cloudops-central:beat .
 ```
 
+### Dependabot Configuration
+
+Automated dependency updates are configured via `.github/dependabot.yml`:
+
+- **Python Dependencies**: Weekly updates every Monday at 09:00 UTC
+  - Grouped updates for dev, testing, and linting dependencies
+  - Automatic assignment to @georg-nikola
+  - Labeled with `dependencies` and `python`
+
+- **GitHub Actions**: Weekly updates for workflow actions
+  - Labeled with `dependencies` and `github-actions`
+
+- **Docker**: Weekly updates for base images in Dockerfiles
+  - Labeled with `dependencies` and `docker`
+
+**Pull Request Limits**:
+- Python: 10 open PRs maximum
+- GitHub Actions: 5 open PRs maximum
+- Docker: 5 open PRs maximum
+
+**Versioning Strategy**: `increase` - Always update to the latest allowed version
+
+### Qodo (Codium AI) Code Review
+
+AI-powered code review is configured via `.github/workflows/qodo.yml` and `.github/qodo-config.toml`.
+
+**Required Setup**:
+Add `OPENAI_API_KEY` to GitHub repository secrets:
+```bash
+gh secret set OPENAI_API_KEY --body "sk-..."
+```
+
+**Features**:
+- **PR Review**: Automatic code review on every PR (opened, synchronized, reopened)
+- **Code Improvements**: AI-generated suggestions for enhancements
+- **PR Description**: Auto-generated PR descriptions with CloudOps-specific focus
+- **Security Review**: Security implications highlighted
+- **Test Recommendations**: Suggests tests for new code
+- **Cost Optimization**: Notes cost optimization opportunities
+
+**Configuration Highlights** (`.github/qodo-config.toml`):
+- Model: GPT-4 with GPT-3.5-turbo fallback
+- 4 code suggestions per review
+- Inline code comments enabled
+- Focus areas: Infrastructure, cloud operations, security, compliance, cost optimization
+
+**Workflow Jobs**:
+1. `qodo-review`: Comprehensive code review
+2. `qodo-improve`: Improvement suggestions
+3. `qodo-describe`: PR description generation (on PR open only)
+
+### Branch Protection Rules
+
+The `main` branch is protected with the following rules:
+
+**Required Status Checks** (must pass before merge):
+- Code Quality Checks
+- Security Scanning
+- Unit Tests
+- Integration Tests
+- End-to-End Tests
+
+**Pull Request Requirements**:
+- At least 1 approving review required
+- Stale reviews automatically dismissed when new commits are pushed
+- All conversations must be resolved before merge
+
+**Branch Restrictions**:
+- Force pushes blocked
+- Branch deletions blocked
+- Admins also subject to these restrictions
+
+**Fork-Based Workflow**:
+All code changes should be submitted via pull requests from forks. This ensures:
+- Clean separation between upstream and contributor changes
+- Better security through reduced direct push access
+- Standard review process for all changes
+
+To contribute:
+```bash
+# Fork the repository on GitHub
+# Clone your fork
+git clone https://github.com/YOUR_USERNAME/cloudops-central.git
+cd cloudops-central
+
+# Add upstream remote
+git remote add upstream https://github.com/georg-nikola/cloudops-central.git
+
+# Create feature branch
+git checkout -b feature/my-feature
+
+# Make changes and commit
+git add . && git commit -m "feat: my feature"
+
+# Push to your fork
+git push origin feature/my-feature
+
+# Create PR from your fork to upstream main
+gh pr create --web
+```
+
+**Note**: The branch protection configuration is stored in `.github/branch-protection.json` and can be updated via:
+```bash
+gh api repos/{owner}/{repo}/branches/main/protection --method PUT --input .github/branch-protection.json
+```
+
 ## Environment Configuration
 
 Critical environment variables (from `.env.example`):
