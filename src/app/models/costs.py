@@ -9,13 +9,16 @@ import enum
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import BaseModel, NamedModel
+
+if TYPE_CHECKING:
+    from app.models.infrastructure import CloudProvider, Infrastructure, InfrastructureResource
 
 
 class CostPeriod(str, enum.Enum):
