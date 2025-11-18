@@ -122,7 +122,10 @@ class CostService:
                 "recommendation_id": "opt-001",
                 "resource_id": "i-1234567890abcdef0",
                 "recommendation_type": "rightsizing",
-                "description": "Downsize EC2 instance from t3.large to t3.medium based on low CPU utilization (<15%)",
+                "description": (
+                    "Downsize EC2 instance from t3.large to t3.medium "
+                    "based on low CPU utilization (<15%)"
+                ),
                 "estimated_savings": 450.00,
                 "priority": "high",
                 "implementation_effort": "low",

@@ -7,14 +7,14 @@ from datetime import datetime
 import pytest
 
 from app.core.exceptions import (
-    AuthenticationException,
-    AuthorizationException,
+    AuthenticationError,
+    AuthorizationError,
     CloudOpsException,
-    DatabaseException,
-    ExternalServiceException,
-    ResourceConflictException,
-    ResourceNotFoundException,
-    ValidationException,
+    ConflictError,
+    DatabaseError,
+    ExternalServiceError,
+    NotFoundError,
+    ValidationError,
 )
 
 
@@ -63,12 +63,12 @@ class TestCloudOpsException:
 
 
 class TestDatabaseException:
-    """Test DatabaseException."""
+    """Test DatabaseError."""
 
     @pytest.mark.unit
     def test_database_exception(self):
         """Test database exception creation."""
-        exc = DatabaseException(
+        exc = DatabaseError(
             message="Database connection failed",
             details={"host": "localhost", "port": 5432},
         )
@@ -80,29 +80,30 @@ class TestDatabaseException:
 
 
 class TestValidationException:
-    """Test ValidationException."""
+    """Test ValidationError."""
 
     @pytest.mark.unit
     def test_validation_exception(self):
         """Test validation exception creation."""
-        exc = ValidationException(
+        exc = ValidationError(
             message="Invalid email format",
-            details={"field": "email", "value": "invalid-email"},
+            field="email",
+            value="invalid-email",
         )
 
         assert exc.message == "Invalid email format"
         assert exc.error_type == "validation_error"
-        assert exc.status_code == 422
+        assert exc.status_code == 400
         assert exc.details["field"] == "email"
 
 
 class TestAuthenticationException:
-    """Test AuthenticationException."""
+    """Test AuthenticationError."""
 
     @pytest.mark.unit
     def test_authentication_exception(self):
         """Test authentication exception creation."""
-        exc = AuthenticationException(
+        exc = AuthenticationError(
             message="Invalid credentials",
         )
 
@@ -112,67 +113,67 @@ class TestAuthenticationException:
 
 
 class TestAuthorizationException:
-    """Test AuthorizationException."""
+    """Test AuthorizationError."""
 
     @pytest.mark.unit
     def test_authorization_exception(self):
         """Test authorization exception creation."""
-        exc = AuthorizationException(
+        exc = AuthorizationError(
             message="Insufficient permissions",
-            details={"required_role": "admin"},
+            required_permission="admin",
         )
 
         assert exc.message == "Insufficient permissions"
         assert exc.error_type == "authorization_error"
         assert exc.status_code == 403
-        assert exc.details["required_role"] == "admin"
+        assert exc.details["required_permission"] == "admin"
 
 
 class TestResourceNotFoundException:
-    """Test ResourceNotFoundException."""
+    """Test NotFoundError."""
 
     @pytest.mark.unit
     def test_resource_not_found_exception(self):
         """Test resource not found exception creation."""
-        exc = ResourceNotFoundException(
-            message="Resource not found",
-            details={"resource_type": "user", "resource_id": "123"},
+        exc = NotFoundError(
+            resource_type="user",
+            resource_id="123",
         )
 
-        assert exc.message == "Resource not found"
-        assert exc.error_type == "resource_not_found"
+        assert "user" in exc.message
+        assert exc.error_type == "not_found_error"
         assert exc.status_code == 404
         assert exc.details["resource_type"] == "user"
 
 
 class TestResourceConflictException:
-    """Test ResourceConflictException."""
+    """Test ConflictError."""
 
     @pytest.mark.unit
     def test_resource_conflict_exception(self):
         """Test resource conflict exception creation."""
-        exc = ResourceConflictException(
+        exc = ConflictError(
             message="Resource already exists",
-            details={"resource_type": "user", "email": "test@example.com"},
+            resource_type="user",
         )
 
         assert exc.message == "Resource already exists"
-        assert exc.error_type == "resource_conflict"
+        assert exc.error_type == "conflict_error"
         assert exc.status_code == 409
 
 
 class TestExternalServiceException:
-    """Test ExternalServiceException."""
+    """Test ExternalServiceError."""
 
     @pytest.mark.unit
     def test_external_service_exception(self):
         """Test external service exception creation."""
-        exc = ExternalServiceException(
-            message="AWS API call failed",
-            details={"service": "EC2", "operation": "DescribeInstances"},
+        exc = ExternalServiceError(
+            service_name="AWS",
+            message="API call failed",
         )
 
-        assert exc.message == "AWS API call failed"
+        assert "AWS" in exc.message
         assert exc.error_type == "external_service_error"
         assert exc.status_code == 502
-        assert exc.details["service"] == "EC2"
+        assert exc.details["service_name"] == "AWS"

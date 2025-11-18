@@ -26,7 +26,7 @@ from sqlalchemy.pool import StaticPool
 from app.core.config import Settings, get_settings
 from app.core.database import Base, get_db
 from app.models.costs import CostRecord
-from app.models.infrastructure import CloudProvider, InfrastructureResource
+from app.models.infrastructure import CloudProvider, InfrastructureResource, ResourceType
 from app.models.policies import Policy
 from app.models.users import Role, User, UserStatus
 
@@ -231,10 +231,8 @@ async def test_cloud_provider(db_session: AsyncSession) -> CloudProvider:
 
 
 @pytest_asyncio.fixture
-async def test_resource_type(db_session: AsyncSession) -> "ResourceType":
+async def test_resource_type(db_session: AsyncSession) -> ResourceType:
     """Create a test resource type."""
-    from app.models.infrastructure import ResourceType
-
     resource_type = ResourceType(
         name="EC2 Instance",
         resource_category="compute",
@@ -251,7 +249,7 @@ async def test_resource_type(db_session: AsyncSession) -> "ResourceType":
 async def test_infrastructure_resource(
     db_session: AsyncSession,
     test_cloud_provider: CloudProvider,
-    test_resource_type: "ResourceType",
+    test_resource_type: ResourceType,
 ) -> InfrastructureResource:
     """Create a test infrastructure resource."""
     from app.models.infrastructure import ResourceStatus
